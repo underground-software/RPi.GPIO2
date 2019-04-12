@@ -59,14 +59,14 @@ def Dprint(*msgargs):
 ## Fuse these functions and refactor later
 
 def is_all_ints(data):
-    return all([isinstance(elem,int) for elem in data]\
+    return all([isinstance(elem,int) for elem in data]) \
         if not isinstance(data,int)\
-            else isinstance(data,int))
+            else True
 
 def is_all_bools(data):
-    return all([isinstance(elem,bool) for elem in data]\
+    return all([isinstance(elem,bool) for elem in data]) \
         if not isinstance(data,bool)\
-            else isinstance(data,bool))
+            else True
 
 ## Fuse these functions and refactor later
 
