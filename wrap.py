@@ -1,8 +1,19 @@
+#!/bin/env python3
+
 import gpiod
+import os
 
-MODE_OUT=gpiod.LINE_REQ_DIR_OUT
+OUT=gpiod.LINE_REQ_DIR_OUT
 
-chip=gpiod.Chip("gpiochip0")
+gpiochips = []
+for root, dirs, files in os.walk('/dev/'):
+    for filename in files:
+        if filename.find('gpio') > -1:
+            print(filename)
+            gpiochips.append(filename)
+
+chip=gpiod.Chip(gpiochips[1])
+
 
 # Concept of a wrapper using libgpio
 class Pin:
@@ -23,10 +34,16 @@ class Pin:
 
     def __init__(self, pin, mode):
         self.line = chip.get_line(pin)
-        self.line.request(consumer="gpiochip0", type=MODE_OUT)
+        self.line.request(consumer=gpiochips[1], type=OUT)
+    
+    def toggle(self):
+        if self.value:
+            self.value = 0
+        else:
+            self.value = 1
 
 
-pin = Pin(25, MODE_OUT)
+#pin = Pin(25, MODE_OUT)
 
-pin.value = 1
-input()
+#pin.value = 1
+#input()
