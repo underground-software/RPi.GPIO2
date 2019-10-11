@@ -48,3 +48,6 @@ gpiod-test
 
 # man pages
 *.man
+
+# __pycache__
+__pycache__
