@@ -1,30 +1,31 @@
 import gpiod
 from warnings import warn
+import os
 
 class _State:
-    mode = 0
-    warnings = True
+    mode      = 0
+    warnings  = True
     debuginfo = True
-    chip = None
-    lines = {}
+    chip      = None
+    lines     = {}
 
 
 # Pin numbering modes
-UNKNOWN =   0
-BCM =       1
-BOARD =     2
+UNKNOWN = 0
+BCM     = 1
+BOARD   = 2
 
 # Output modes
-LOW =       0
-HIGH =      1
+LOW  = 0
+HIGH = 1
 
 # PUD modes
-PUD_OFF =   0
-PUD_UP =    1
-PUD_DOWN =  2
+PUD_OFF  = 0
+PUD_UP   = 1
+PUD_DOWN = 2
 
 # Data directions
-IN = gpiod.LINE_REQ_DIR_IN
+IN  = gpiod.LINE_REQ_DIR_IN
 OUT = gpiod.LINE_REQ_DIR_OUT
 
 
@@ -49,6 +50,15 @@ def setmode(mode):
     # Temporarily:
     if mode == BOARD:
         raise ValueError("We currently do not suppprt BOARD mode")
+    
+    if mode == BCM:
+        gpiochips = []
+        for root, dirs, files in os.walk('/dev/'):
+            for filename in files:
+                if filename.find('gpio') > -1:
+                    gpiochips.append(filename)
+        if not gpiochips:
+            raise ValueError("No compatible chips found")
     
     _State.mode = mode
     # This is hardcoded for now but that may change soon (or not)
@@ -75,11 +85,11 @@ def is_all_ints(data):
     except TypeError:
         try:
             [ int(value) for value in data ]
-        except ValueError:
+        except (ValueError, TypeError):
             return False
         else:
             return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     else:
         return True
@@ -91,11 +101,11 @@ def is_all_bools(data):
     except TypeError:
         try:
             [ bool(value) for value in data ]
-        except ValueError:
+        except (ValueError, TypeError):
             return False
         else:
             return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
     else:
         return True
