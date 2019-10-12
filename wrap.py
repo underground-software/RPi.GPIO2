@@ -13,6 +13,7 @@ for root, dirs, files in os.walk('/dev/'):
             gpiochips.append(filename)
 
 chip=gpiod.Chip(gpiochips[1])
+# Also see gpid.ChipIter
 
 
 # Concept of a wrapper using libgpio
@@ -43,7 +44,7 @@ class Pin:
             self.value = 1
 
 
-#pin = Pin(25, MODE_OUT)
+pin = Pin(25, MODE_OUT)
 
-#pin.value = 1
-#input()
+pin.value = 1
+input()
