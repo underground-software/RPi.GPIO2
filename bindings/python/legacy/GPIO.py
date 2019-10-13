@@ -51,6 +51,7 @@ def setmode(mode):
     if mode == BOARD:
         raise ValueError("We currently do not suppprt BOARD mode")
     
+    # TODO: we should discuss this
     if mode == BCM:
         gpiochips = []
         for root, dirs, files in os.walk('/dev/'):
@@ -94,7 +95,6 @@ def is_all_ints(data):
     else:
         return True
 
-# This function is pretty much pointless 
 def is_all_bools(data):
     try:
         bool(data)
@@ -186,3 +186,29 @@ def output(channel, value):
                 _State.lines[chan].set_value(bool(val))
             except PermissionError:
                 warn("Unable to set value of channel {}, did you forget to run setup()? Or did setup() fail?".format(chan))
+
+# This function needs to be tested
+def input(channel):
+    """
+    Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
+    channel - either board pin number or BCM number depending on which mode is set.
+    """
+    
+    if channel not in _State.lines.keus() or _State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
+            or _State.lines[channel].direction() != gpiod.Lines.DIRECTION_OUTPUT:
+        raise RuntimeError("You must setup() the GPIO channel first")
+
+    return _State.lines[channel].get_value()
+
+
+def getmode():
+    """
+    Get numbering mode used for channel numbers.
+    Returns BOARD, BCM or None
+    """
+
+    if _State.mode == UNKNOWN:
+        return None
+    else:
+        return _State.mode
+
