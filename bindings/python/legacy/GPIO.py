@@ -194,7 +194,7 @@ def input(channel):
     channel - either board pin number or BCM number depending on which mode is set.
     """
     
-    if channel not in _State.lines.keus() or _State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
+    if channel not in _State.lines.keys() or _State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
             or _State.lines[channel].direction() != gpiod.Lines.DIRECTION_OUTPUT:
         raise RuntimeError("You must setup() the GPIO channel first")
 
