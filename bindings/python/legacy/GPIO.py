@@ -193,9 +193,8 @@ def input(channel):
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
     channel - either board pin number or BCM number depending on which mode is set.
     """
-    
-    if channel not in _State.lines.keys() or _State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
-            or _State.lines[channel].direction() != gpiod.Line.DIRECTION_OUTPUT:
+    if channel not in _State.lines.keys() or (_State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
+            and _State.lines[channel].direction() != gpiod.Line.DIRECTION_OUTPUT):
         raise RuntimeError("You must setup() the GPIO channel first")
 
     return _State.lines[channel].get_value()
