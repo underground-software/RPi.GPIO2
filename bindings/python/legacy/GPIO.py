@@ -195,7 +195,7 @@ def input(channel):
     """
     
     if channel not in _State.lines.keys() or _State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
-            or _State.lines[channel].direction() != gpiod.Lines.DIRECTION_OUTPUT:
+            or _State.lines[channel].direction() != gpiod.Line.DIRECTION_OUTPUT:
         raise RuntimeError("You must setup() the GPIO channel first")
 
     return _State.lines[channel].get_value()
