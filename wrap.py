@@ -14,6 +14,10 @@ for root, dirs, files in os.walk('/dev/'):
 
 chip=gpiod.Chip(gpiochips[1])
 # Also see gpid.ChipIter
+for chp in gpiod.ChipIter():
+    print(chp.name(), chp.label())
+    if chp.name() == chip:
+        print(chp.label())
 
 
 # Concept of a wrapper using libgpio
@@ -38,11 +42,7 @@ class Pin:
         self.line.request(consumer=gpiochips[1], type=OUT)
     
     def toggle(self):
-        if self.value:
-            self.value = 0
-        else:
-            self.value = 1
-
+        self.value = 0 if self.value else 1
 
 pin = Pin(25, MODE_OUT)
 

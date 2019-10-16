@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="en-US" prefix="og: http://ogp.me/ns#">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="en-US" prefix="og: http://ogp.me/ns#">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="en-US" prefix="og: http://ogp.me/ns#" >
+
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<meta name="description" content="A Computer Science portal for geeks. It contains well written, well thought and well explained computer science and programming articles, quizzes and practice/competitive programming/company interview Questions.">
+<link rel="shortcut icon" href="https://www.geeksforgeeks.org/favicon.ico" type="image/x-icon" />
+
+<meta name="theme-color" content="#0f9d58" />
+
+<meta property="og:image" content="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="200">
+<meta property="og:image:height" content="200">
+<script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
+<script src="https://apis.google.com/js/platform.js"></script>
+
+<title>Morse Code Translator In Python - GeeksforGeeks</title>
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="pingback" href="" />
+<!--[if lt IE 9]>
+<script src="https://www.geeksforgeeks.org/wp-content/themes/iconic-one/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+
+<script type="application/ld+json">
+    {
+        "@context" : "http://schema.org",
+        "@type" : "Organization",
+        "name" : "GeeksforGeeks",
+        "url" : "https://www.geeksforgeeks.org/",
+        "logo" : "https://www.geeksforgeeks.org/gfgLogo.png",
+        "description" : "A computer science portal for geeks. It contains well written, well thought and well explained computer science and programming articles, quizzes and practice/competitive programming/company interview Questions.",
+        "founder": [
+            {
+                "@type" : "Person",
+                "name" : "Sandeep Jain",
+                "url" : "https://in.linkedin.com/in/sandeep-jain-b3940815"
+            }
+        ],
+        "sameAs" : [ "https://www.facebook.com/geeksforgeeks.org/",
+            "https://twitter.com/geeksforgeeks",
+            "https://www.linkedin.com/company/1299009",
+            "https://www.youtube.com/geeksforgeeksvideos/"
+        ]
+    }
+</script>
+<script>
+
+    var arrPostCat = new Array();
+            arrPostCat.push('1767');
+            arrPostCat.push('1789');
+        var tIds = "1767,1789";
+    var domain = 1;
+    var arrPost = new Array();
+    var post_id = "150397";
+    var post_type = "post";
+    var post_slug = window.location.href;
+    var ip = "104.72.70.28";
+    var post_title = "Morse Code Translator In Python";
+    var post_status = "publish";
+    var post_date = "2017-07-01 12:36:23";
+                            var isAdminLoggedIn = 0;
+        </script>
+
+<!-- This site is optimized with the Yoast SEO plugin v7.6 - https://yoast.com/wordpress/plugins/seo/ -->
+<link rel="canonical" href="https://www.geeksforgeeks.org/morse-code-translator-python/" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Morse Code Translator In Python - GeeksforGeeks" />
+<meta property="og:description" content="Morse code is a method of transmitting text information as a series of on-off tones, lights, or clicks that can be directly understood by a… Read More &raquo;" />
+<meta property="og:url" content="https://www.geeksforgeeks.org/morse-code-translator-python/" />
+<meta property="og:site_name" content="GeeksforGeeks" />
+<meta property="article:section" content="Project" />
+<meta property="article:published_time" content="2017-07-01T12:36:23+00:00" />
+<meta property="article:modified_time" content="2018-02-07T16:12:34+00:00" />
+<meta property="og:updated_time" content="2018-02-07T16:12:34+00:00" />
+<script type='application/ld+json'>{"@context":"https:\/\/schema.org","@type":"Organization","url":"https:\/\/www.geeksforgeeks.org\/","sameAs":[],"@id":"https:\/\/www.geeksforgeeks.org\/#organization","name":"GeeksforGeeks","logo":"http:\/\/www.geeksforgeeks.org\/wp-content\/uploads\/gfg_200X200-1.png"}</script>
+<!-- / Yoast SEO plugin. -->
+
+<link rel='dns-prefetch' href='//www.cdn.geeksforgeeks.org' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link rel='dns-prefetch' href='//s.w.org' />
+<link rel="alternate" type="application/rss+xml" title="GeeksforGeeks &raquo; Feed" href="https://www.geeksforgeeks.org/feed/" />
+<link rel="alternate" type="application/rss+xml" title="GeeksforGeeks &raquo; Comments Feed" href="https://www.geeksforgeeks.org/comments/feed/" />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/11\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/11\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.geeksforgeeks.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.9.8"}};
+			!function(a,b,c){function d(a,b){var c=String.fromCharCode;l.clearRect(0,0,k.width,k.height),l.fillText(c.apply(this,a),0,0);var d=k.toDataURL();l.clearRect(0,0,k.width,k.height),l.fillText(c.apply(this,b),0,0);var e=k.toDataURL();return d===e}function e(a){var b;if(!l||!l.fillText)return!1;switch(l.textBaseline="top",l.font="600 32px Arial",a){case"flag":return!(b=d([55356,56826,55356,56819],[55356,56826,8203,55356,56819]))&&(b=d([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]),!b);case"emoji":return b=d([55358,56760,9792,65039],[55358,56760,8203,9792,65039]),!b}return!1}function f(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var g,h,i,j,k=b.createElement("canvas"),l=k.getContext&&k.getContext("2d");for(j=Array("flag","emoji"),c.supports={everything:!0,everythingExceptFlag:!0},i=0;i<j.length;i++)c.supports[j[i]]=e(j[i]),c.supports.everything=c.supports.everything&&c.supports[j[i]],"flag"!==j[i]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[j[i]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(h=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",h,!1),a.addEventListener("load",h,!1)):(a.attachEvent("onload",h),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),g=c.source||{},g.concatemoji?f(g.concatemoji):g.wpemoji&&g.twemoji&&(f(g.twemoji),f(g.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='themonic-fonts-css'  href='https://fonts.googleapis.com/css?family=Roboto:400,700&#038;subset=latin,latin-ext' type='text/css' media='all' />
+<link rel='stylesheet' id='custom-style-css'  href='https://www.geeksforgeeks.org/wp-content/themes/iconic-one/css/gfg.min.css?ver=6.1' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.geeksforgeeks.org/wp-includes/js/jquery/jquery.js?ver=1.12.4'></script>
+<script type='text/javascript' src='https://www.geeksforgeeks.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var gfgObject = {"authUrl":"https:\/\/auth.geeksforgeeks.org\/","contributeUrl":"https:\/\/contribute.geeksforgeeks.org\/","utilUrl":"https:\/\/util.geeksforgeeks.org\/"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.geeksforgeeks.org/wp-content/themes/iconic-one/js/gfg.min.js?ver=10.31'></script>
+<link rel='https://api.w.org/' href='https://www.geeksforgeeks.org/wp-json/' />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.cdn.geeksforgeeks.org/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.cdn.geeksforgeeks.org/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 4.9.8" />
+<link rel='shortlink' href='https://www.geeksforgeeks.org/?p=150397' />
+<link rel="alternate" type="application/json+oembed" href="https://www.geeksforgeeks.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.geeksforgeeks.org%2Fmorse-code-translator-python%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://www.geeksforgeeks.org/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.geeksforgeeks.org%2Fmorse-code-translator-python%2F&#038;format=xml" />
+        <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+        <script>
+        window.addEventListener("load", function(){
+        window.cookieconsent.initialise({
+        "palette": {
+            "popup": {
+              "background": "#3c404d",
+              "text": "#d6d6d6"
+            },
+            "button": {
+              "background": "#8bed4f"
+            }
+          },
+          "theme": "classic",
+            onStatusChange: function(status) {
+            
+            },
+            "content": {
+            "message": "We use cookies to ensure you have the best browsing experience on our website. By using our site, you acknowledge that you have read and understood our <a href=\"https://www.geeksforgeeks.org/cookie-policy/\" class=\"cc-link\" target=\"_blank\">Cookie Policy</a> & ",
+            "link": "Privacy Policy",
+            "href": "/privacy-policy/"
+            },
+        cookie: {
+        name : "geeksforgeeks_consent_status",
+        }
+        })});
+    
+        </script>
+    <style>
+#wpadminbar{
+background: #ff0000 !important;
+}
+</style>
+<style type="text/css" id="custom-background-css">
+body.custom-background { background-color: #ffffff; }
+</style>
+<link rel="amphtml" href="https://www.geeksforgeeks.org/morse-code-translator-python/amp/"><link rel="icon" href="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200-100x100.png" sizes="32x32" />
+<link rel="icon" href="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200.png" sizes="192x192" />
+<link rel="apple-touch-icon-precomposed" href="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200.png" />
+<meta name="msapplication-TileImage" content="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200.png" />
+
+<script type='text/javascript'>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+  (function() {
+    var gads = document.createElement('script');
+    gads.async = true;
+    gads.type = 'text/javascript';
+    var useSSL = 'https:' == document.location.protocol;
+    gads.src = (useSSL ? 'https:' : 'http:') +
+      '//www.googletagservices.com/tag/js/gpt.js';
+    var node = document.getElementsByTagName('script')[0];
+    node.parentNode.insertBefore(gads, node);
+  })();
+</script>
+<script type='text/javascript'>
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/27823234/SP', [300, 250], 'div-gpt-ad-1458112424022-0').addService(googletag.pubads());
+    googletag.pubads().enableSingleRequest();
+    googletag.enableServices();
+  });
+</script>
+<!-- AutoAds -->
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({
+google_ad_client: "ca-pub-9465609616171866",
+enable_page_level_ads: true
+});
+</script>
+
+<style>
+.suggestArticleModal {
+display: none; 
+position: fixed; 
+z-index: 100; 
+padding-top: 100px; 
+left: 0;
+top: 0;
+width: 100%; 
+height: 100%; 
+overflow: auto;
+background-color: rgb(0,0,0); 
+background-color: rgba(0,0,0,0.4); 
+line-height: 3em;
+}
+
+.suggestArticleContent {
+width: 30% !important;
+background-color: #fefefe;
+margin: auto;
+padding: 2px;
+border: 1px solid #888;
+width: 80%;
+}
+.suggestArticleContent h5 {
+font-size: 1.3em;
+}
+.rowMain {
+line-height: 3em;
+}
+#updateSubmitButton {
+border-radius: 15px !important;
+background: #0f9d58 !important;
+color: white !important;
+padding: 12px 25px;
+cursor:pointer;
+}
+#updateArticleTitle {
+border-bottom: 1px solid #aaaaaa !important;
+width: 60%;
+}
+#updateArticleDescription {
+width: 60% !important;
+border-bottom: 1px solid #aaaaaa !important;
+}
+.suggestArticleModal button, .suggestArticleModal input, .suggestArticleModal textarea {
+border: 1px #cccc !important;
+background: bottom;
+}
+.getInput col s12 {
+    margin: 2em;
+}
+.closeModal {
+float: right;
+font-size: 22px;
+margin-right: .5em;
+margin-top: -5px;
+font-weight: bold;
+}
+.grecaptcha-badge { 
+visibility: hidden;
+}
+.closeModal:hover,
+.closeModal:focus {
+color: #000;
+text-decoration: none;
+cursor: pointer;
+}
+.modal-fixed {
+text-align: center !important;;
+}
+.termsPolicy {
+font-size: 9px;
+color: grey;
+}
+.card-action_suggest {
+padding-bottom: 25px;
+}
+.row {
+margin-top: 12px;
+}
+.row label {
+font-size: 14px;
+}
+.getInput select {
+    width: 21em;
+}
+@media only screen and (max-width: 768px) {
+    .getInput select {
+        width: 80px;
+    }
+    .suggestArticleContent {
+        width: 80% !important;
+    }
+    .suggestArticleModal {
+        padding-top: 15px;
+    }/*
+    #updateArticleForm {
+        height: 240px;
+        overflow-y: auto;
+    }*/
+}
+@media only screen and (max-width: 1024px) {
+    #updateArticleForm {
+        min-height: 300px;
+        overflow-y: auto;
+    }
+    .suggestArticleContent {
+        margin-top:10px;
+        overflow-y: initial !important;
+    }
+}
+</style>
+
+<!-- Global site tag (gtag.js) - Google Ads: 796001856 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-796001856"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-796001856');
+</script>
+
+
+  <script>(window.BOOMR_mq=window.BOOMR_mq||[]).push(["addVar",{"rua.upush":"false","rua.cpush":"false","rua.upre":"false","rua.cpre":"false","rua.uprl":"false","rua.cprl":"false","rua.cprf":"false","rua.trans":"","rua.cook":"false","rua.ims":"false","rua.ufprl":"false","rua.cfprl":"false"}]);</script>
+  <script>!function(){function o(n,i){if(n&&i)for(var r in i)i.hasOwnProperty(r)&&(void 0===n[r]?n[r]=i[r]:n[r].constructor===Object&&i[r].constructor===Object?o(n[r],i[r]):n[r]=i[r])}try{var n=decodeURIComponent("");if(n.length>0&&window.JSON&&"function"==typeof window.JSON.parse){var i=JSON.parse(n);void 0!==window.BOOMR_config?o(window.BOOMR_config,i):window.BOOMR_config=i}}catch(r){window.console&&"function"==typeof window.console.error&&console.error("mPulse: Could not parse configuration",r)}}();</script>
+  <script>!function(a){var e="https://s.go-mpulse.net/boomerang/",t="addEventListener";if("False"=="True")a.BOOMR_config=a.BOOMR_config||{},a.BOOMR_config.PageParams=a.BOOMR_config.PageParams||{},a.BOOMR_config.PageParams.pci=!0,e="https://s2.go-mpulse.net/boomerang/";if(function(){function n(e){a.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!a.BOOMR||!a.BOOMR.version&&!a.BOOMR.snippetExecuted){a.BOOMR=a.BOOMR||{},a.BOOMR.snippetExecuted=!0;var i,o,r,O=document.createElement("iframe");if(a[t])a[t]("load",n,!1);else if(a.attachEvent)a.attachEvent("onload",n);O.src="javascript:void(0)",O.title="",O.role="presentation",(O.frameElement||O).style.cssText="width:0;height:0;border:0;display:none;",r=document.getElementsByTagName("script")[0],r.parentNode.insertBefore(O,r);try{o=O.contentWindow.document}catch(_){i=document.domain,O.src="javascript:var d=document.open();d.domain='"+i+"';void(0);",o=O.contentWindow.document}o.open()._l=function(){var a=this.createElement("script");if(i)this.domain=i;a.id="boomr-if-as",a.src=e+"DRC3M-XVBSV-FUQK8-83JJR-8KUMW",BOOMR_lstart=(new Date).getTime(),this.body.appendChild(a)},o.write("<bo"+'dy onload="document._l();">'),o.close()}}(),"".length>0)if(a&&"performance"in a&&a.performance&&"function"==typeof a.performance.setResourceTimingBufferSize)a.performance.setResourceTimingBufferSize();!function(){if(BOOMR=a.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var e=""=="true"?1:0,t="",n="qe7xiilimroraxnaqiqq-f-502ec7f33-clientnsv4-s.akamaihd.net",i={"ak.v":23,"ak.cp":"855608","ak.ai":parseInt("547329",10),"ak.ol":"0","ak.cr":16,"ak.ipv":4,"ak.proto":"","ak.rid":"2768606e","ak.r":25830,"ak.a2":e,"ak.m":"dscr","ak.n":"ff","ak.bpcip":"129.63.116.0","ak.cport":22283,"ak.gh":"104.100.93.12","ak.quicv":"","ak.tlsv":"tls1.2","ak.0rtt":"","ak.csrc":"-","ak.acc":"reno","ak.t":"1570800161"};if(""!==t)i["ak.ruds"]=t;var o={i:!1,av:function(e){var t="http.initiator";if(e&&(!e[t]||"spa_hard"===e[t]))i["ak.feo"]=void 0!==a.aFeoApplied?1:0,BOOMR.addVar(i)},rv:function(){var a=["ak.bpcip","ak.cport","ak.cr","ak.csrc","ak.gh","ak.ipv","ak.m","ak.n","ak.ol","ak.proto","ak.quicv","ak.tlsv","ak.0rtt","ak.r","ak.acc","ak.t"];BOOMR.removeVar(a)}};BOOMR.plugins.AK={akVars:i,akDNSPreFetchDomain:n,init:function(){if(!o.i){var a=BOOMR.subscribe;a("before_beacon",o.av,null,null),a("onbeacon",o.rv,null,null),o.i=!0}return this},is_complete:function(){return!0}}}}()}(window);</script></head>
+
+<body class="post-template-default single single-post postid-150397 single-format-standard custom-background custom-background-white custom-font-enabled">
+
+
+<!-- BuySellAds Ad Code 
+<script type="text/javascript">
+(function(){
+var bsa = document.createElement('script');
+ bsa.type = 'text/javascript';
+ bsa.async = true;
+ bsa.src = '//s3.buysellads.com/ac/bsa.js';
+(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(bsa);
+})();
+</script>
+ End BuySellAds Ad Code -->
+
+<div id="page" style="position:relative;overflow: unset;z-index:2;" class="hfeed site">
+<header id="masthead" class="site-header" role="banner">
+    <div style="margin-bottom: 5px;">	
+    <div class="upper-header">
+        <div id="container-g4g-header">
+            <div id="MasterHead">
+                <div class="header-gfg-logo">
+                                <a href="https://www.geeksforgeeks.org/" title="GeeksforGeeks" rel="home"><img src="https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-6.png" alt="GeeksforGeeks"></a>
+
+                        </div>
+
+ <span class="responsive-custom-search">
+<script>
+  (function() {
+    var cx = '009682134359037907028:tj6eafkv_be';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+</span>
+
+<!--<script src='https://www.google.com/recaptcha/api.js?onload=onloadCallbackSuggest&render=explicit' async defer></script> -->
+                <div class = "buttonsProfileSide">
+                    <div class="masterhead-buttons">
+                            <a class="ButtonContribute" href="https://practice.geeksforgeeks.org/courses/" style="margin-bottom:5px;text-transform: uppercase;padding:10px 10px 12px 10px;" >Courses</a>
+                            <a class="ButtonContribute" href="/hire-with-us/" style="margin-bottom:5px;text-transform: uppercase;padding:8px 8px 9px 8px;" >Hire with Us&nbsp;<img style="width: 20px;vertical-align: middle;" src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/search.svg"></a>
+                            <!--<a class="ButtonContribute"  href ='https://contribute.geeksforgeeks.org/request-article/request-article.php' id = "suggestArticle" type="button" style="margin-bottom:5px;cursor:pointer;"  >Suggest an Article</a> 
+-->
+    <!-- MODAL OPEN FOR SUGGESTING ARTICLE -->                  
+          
+    <div id="myModal" class="modal modal-fixed-footer modal-fixed suggestArticleModal">
+        <div class="modal-content suggestArticleContent">
+        <span class="close closeModal">&times;</span>
+        <h5>Suggest a Topic</h5>
+
+            <form id ="updateArticleForm" method="POST">
+                <div class="row rowMain">
+                    <div class="col s12 ">
+                        <div class="card darken-1">
+                            <div class="card-content">
+
+                                    <div class="row">
+                                        <div class="input-field col s12 getInput">
+                                            <input name="articleTitle" id="updateArticleTitle" placeholder="Article Title" class="materialize-textarea validate" type = "text" data-length="200">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12 getInput">
+                                            <textarea name= "articleDescription" id="updateArticleDescription" placeholder="Please enter Article Description" class="materialize-textarea validate"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label>Select a Category</label>
+                                        <div class="input-field col s12 getInput">
+                                            <select  name='updateArticleCategory' id='updateArticleCategory' class='postform' >
+	<option class="level-0" value="2557">Advanced Computer Subject</option>
+	<option class="level-0" value="1762">Advanced Data Structure</option>
+	<option class="level-0" value="1744">Algorithms</option>
+	<option class="level-0" value="2214">Algorithms Quiz</option>
+	<option class="level-0" value="1745">Analysis</option>
+	<option class="level-0" value="3665">AngularJS</option>
+	<option class="level-0" value="2200">Aptitude</option>
+	<option class="level-0" value="3">Arrays</option>
+	<option class="level-0" value="18">Articles</option>
+	<option class="level-0" value="2102">Articles</option>
+	<option class="level-0" value="1748">Backtracking</option>
+	<option class="level-0" value="1761">Binary Search Tree</option>
+	<option class="level-0" value="17">Bit Magic</option>
+	<option class="level-0" value="3616">Bootstrap</option>
+	<option class="level-0" value="1870">Branch and Bound</option>
+	<option class="level-0" value="2064">C</option>
+	<option class="level-0" value="2598">C Programs</option>
+	<option class="level-0" value="2206">C Quiz</option>
+	<option class="level-0" value="2842">C#</option>
+	<option class="level-0" value="3417">C# Programs</option>
+	<option class="level-0" value="2065">C++</option>
+	<option class="level-0" value="2599">C++ Programs</option>
+	<option class="level-0" value="2207">C++ Quiz</option>
+	<option class="level-0" value="3695">CAT</option>
+	<option class="level-0" value="1759">Combinatorial</option>
+	<option class="level-0" value="1790">Competitive Programming</option>
+	<option class="level-0" value="2059">Compiler Design</option>
+	<option class="level-0" value="2215">Compiler Design</option>
+	<option class="level-0" value="2051">Computer Networks</option>
+	<option class="level-0" value="2212">Computer Networks Quiz</option>
+	<option class="level-0" value="2539">Computer Organization &amp; Architecture</option>
+	<option class="level-0" value="2216">Computer Organization and Architecture</option>
+	<option class="level-0" value="2050">Computer Subject</option>
+	<option class="level-0" value="2134">CS &#8211; Placements</option>
+	<option class="level-0" value="3615">CSS</option>
+	<option class="level-0" value="2066">Data Structures</option>
+	<option class="level-0" value="2213">Data Structures</option>
+	<option class="level-0" value="2053">DBMS</option>
+	<option class="level-0" value="2211">DBMS Quiz</option>
+	<option class="level-0" value="2080">Design Pattern</option>
+	<option class="level-0" value="2135">DI &#8211; Placements</option>
+	<option class="level-0" value="2551">Difference Between</option>
+	<option class="level-0" value="2537">Digital Electronics &amp; Logic Design</option>
+	<option class="level-0" value="1750">Divide and Conquer</option>
+	<option class="level-0" value="1746">Dynamic Programming</option>
+	<option class="level-0" value="2540">Engineering Mathematics</option>
+	<option class="level-0" value="2202">Engineering Mathematics Questions</option>
+	<option class="level-0" value="2133">English &#8211; Placements</option>
+	<option class="level-0" value="1795">Experienced</option>
+	<option class="level-0" value="2005">Game Theory</option>
+	<option class="level-0" value="2209">GATE</option>
+	<option class="level-0" value="2055">GATE CS</option>
+	<option class="level-0" value="1710">GBlog</option>
+	<option class="level-0" value="1827">Geek on the Top</option>
+	<option class="level-0" value="2765">GeeksforGeeks Initiatives</option>
+	<option class="level-0" value="1754">Geometric</option>
+	<option class="level-0" value="67">GFacts</option>
+	<option class="level-0" value="3565">Go Language</option>
+	<option class="level-0" value="2068">Graph</option>
+	<option class="level-0" value="3630">GRE</option>
+	<option class="level-0" value="3631">GRE Quiz</option>
+	<option class="level-0" value="1747">Greedy</option>
+	<option class="level-0" value="3503">Hadoop</option>
+	<option class="level-0" value="1756">Hash</option>
+	<option class="level-0" value="1755">Heap</option>
+	<option class="level-0" value="3577">HTML</option>
+	<option class="level-0" value="1794">Internship</option>
+	<option class="level-0" value="1140">Interview Experiences</option>
+	<option class="level-0" value="2805">ISRO</option>
+	<option class="level-0" value="2058">Java</option>
+	<option class="level-0" value="2600">Java Programs</option>
+	<option class="level-0" value="2208">Java Quiz</option>
+	<option class="level-0" value="2629">JavaScript</option>
+	<option class="level-0" value="3617">JQuery</option>
+	<option class="level-0" value="3005">JS++</option>
+	<option class="level-0" value="3752">Kotlin</option>
+	<option class="level-0" value="8">Linked List</option>
+	<option class="level-0" value="2639">Linux-Unix</option>
+	<option class="level-0" value="3188">Machine Learning</option>
+	<option class="level-0" value="1753">Mathematical</option>
+	<option class="level-0" value="1760">Matrix</option>
+	<option class="level-0" value="66">MCQ</option>
+	<option class="level-0" value="4" selected="selected">Misc</option>
+	<option class="level-0" value="3654">Node.js</option>
+	<option class="level-0" value="2052">Operating Systems</option>
+	<option class="level-0" value="2210">Operating Systems Questions</option>
+	<option class="level-0" value="1749">Pattern Searching</option>
+	<option class="level-0" value="2942">Perl</option>
+	<option class="level-0" value="2988">PHP</option>
+	<option class="level-0" value="3155">PHP Programs</option>
+	<option class="level-0" value="2130">Placements</option>
+	<option class="level-0" value="5">Program Output</option>
+	<option class="level-0" value="2056">Programming Language</option>
+	<option class="level-0" value="1767">Project</option>
+	<option class="level-0" value="2063">Puzzles</option>
+	<option class="level-0" value="1789">Python</option>
+	<option class="level-0" value="2601">Python Programs</option>
+	<option class="level-0" value="2203">Python-Quizzes</option>
+	<option class="level-0" value="2204">QA &#8211; Placement Quizzes</option>
+	<option class="level-0" value="2131">QA &#8211; Placements</option>
+	<option class="level-0" value="1743">Queue</option>
+	<option class="level-0" value="2199">Quizzes</option>
+	<option class="level-0" value="1757">Randomized</option>
+	<option class="level-0" value="2132">Reasoning &#8211; Placements</option>
+	<option class="level-0" value="2060">Recursion</option>
+	<option class="level-0" value="2959">Ruby</option>
+	<option class="level-0" value="3502">Scala</option>
+	<option class="level-0" value="2078">School Programming</option>
+	<option class="level-0" value="1751">Searching</option>
+	<option class="level-0" value="2839">Software Engineering</option>
+	<option class="level-0" value="1752">Sorting</option>
+	<option class="level-0" value="2057">SQL</option>
+	<option class="level-0" value="1742">Stack</option>
+	<option class="level-0" value="7">Strings</option>
+	<option class="level-0" value="1788">Technical Scripter</option>
+	<option class="level-0" value="1799">TechTips</option>
+	<option class="level-0" value="2977">test_cat_june</option>
+	<option class="level-0" value="2217">Theory of Computation</option>
+	<option class="level-0" value="2538">Theory of Computation &amp; Automata</option>
+	<option class="level-0" value="19">Tree</option>
+	<option class="level-0" value="2806">UGC-NET</option>
+	<option class="level-0" value="2628">Web Technologies</option>
+	<option class="level-0" value="2201">Web technologies Questions</option>
+</select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12 getInput">
+                                            <div style="display:inline-block" class="g-recaptcha" id="loginCaptchaSuggest" data-sitekey="6LexF0sUAAAAADiQjz9BMiSrqplrItl-tWYDSfWa"></div>
+                                        </div>
+                                    </div> 
+                    
+                                    <div class="card-action card-action_suggest">
+                                        <button id = "updateSubmitButton" type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <!-- MODAL CLOSE -->
+
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+
+
+
+<div id="profile" style="float: right; margin-top: -1%;margin-right:1%;"></div>
+</div>
+
+	
+    
+    <nav id="site-navigation" class="themonic-nav" role="navigation">
+			<a class="assistive-text" href="#content" title="Skip to content">Skip to content</a>
+			<div class="menu-iconic-container"><ul id="menu-top" class="nav-menu"><li id="menu-item-147519" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147519"><a href="/"><img style="width: 30px;vertical-align: middle;" src="https://www.geeksforgeeks.org/wp-content/uploads/gfg_transparent_white_small.png"></a></li>
+<li id="menu-item-141975" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-141975"><a href="http://www.geeksforgeeks.org/fundamentals-of-algorithms/">Algo ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-135030" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135030"><a href="http://www.geeksforgeeks.org/fundamentals-of-algorithms/#AnalysisofAlgorithms">Analysis of Algorithms</a></li>
+	<li id="menu-item-146823" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146823"><a href="http://www.geeksforgeeks.org/fundamentals-of-algorithms/">Topicwise ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-147774" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147774"><a href="http://www.geeksforgeeks.org/searching-algorithms/">Searching Algorithms</a></li>
+		<li id="menu-item-147773" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147773"><a href="http://www.geeksforgeeks.org/sorting-algorithms/">Sorting Algorithms</a></li>
+		<li id="menu-item-135041" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135041"><a href="http://www.geeksforgeeks.org/graph-data-structure-and-algorithms/">Graph Algorithms</a></li>
+		<li id="menu-item-135040" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135040"><a href="http://www.geeksforgeeks.org/bitwise-algorithms/">Bit Algorithms</a></li>
+		<li id="menu-item-135034" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135034"><a href="https://www.geeksforgeeks.org/algorithms-gq/pattern-searching/">Pattern Searching</a></li>
+		<li id="menu-item-135038" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135038"><a href="http://www.geeksforgeeks.org/geometric-algorithms/">Geometric Algorithms</a></li>
+		<li id="menu-item-135039" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135039"><a href="http://www.geeksforgeeks.org/mathematical-algorithms/">Mathematical Algorithms</a></li>
+		<li id="menu-item-135042" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135042"><a href="http://www.geeksforgeeks.org/randomized-algorithms/">Randomized Algorithms</a></li>
+		<li id="menu-item-156520" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-156520"><a href="https://www.geeksforgeeks.org/game-theory/">Game Theory</a></li>
+	</ul>
+</li>
+	<li id="menu-item-146824" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146824"><a href="http://www.geeksforgeeks.org/fundamentals-of-algorithms/">Algorithm Paradigms ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-135032" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135032"><a href="http://www.geeksforgeeks.org/greedy-algorithms/">Greedy Algorithms</a></li>
+		<li id="menu-item-135033" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135033"><a href="http://www.geeksforgeeks.org/dynamic-programming/">Dynamic Programming</a></li>
+		<li id="menu-item-135037" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135037"><a href="http://www.geeksforgeeks.org/divide-and-conquer/">Divide and Conquer</a></li>
+		<li id="menu-item-135036" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135036"><a href="http://www.geeksforgeeks.org/backtracking-algorithms/">Backtracking</a></li>
+		<li id="menu-item-137933" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137933"><a href="https://www.geeksforgeeks.org/branch-and-bound-algorithm/">Branch &#038; Bound</a></li>
+	</ul>
+</li>
+	<li id="menu-item-146911" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146911"><a href="http://www.geeksforgeeks.org/fundamentals-of-algorithms/">All Algorithms</a></li>
+</ul>
+</li>
+<li id="menu-item-142016" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-142016"><a href="http://www.geeksforgeeks.org/data-structures/">DS  ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-135054" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135054"><a href="http://www.geeksforgeeks.org/array-data-structure/">Array</a></li>
+	<li id="menu-item-135045" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135045"><a href="http://www.geeksforgeeks.org/data-structures/linked-list/">LinkedList</a></li>
+	<li id="menu-item-135046" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135046"><a href="http://www.geeksforgeeks.org/stack-data-structure/">Stack</a></li>
+	<li id="menu-item-135047" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135047"><a href="http://www.geeksforgeeks.org/queue-data-structure/">Queue</a></li>
+	<li id="menu-item-146827" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146827"><a href="http://www.geeksforgeeks.org/data-structures/">Tree based DS ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-135048" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135048"><a href="http://www.geeksforgeeks.org/binary-tree-data-structure/">Binary Tree</a></li>
+		<li id="menu-item-135049" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135049"><a href="http://www.geeksforgeeks.org/binary-search-tree-data-structure/">Binary Search Tree</a></li>
+		<li id="menu-item-135050" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135050"><a href="http://www.geeksforgeeks.org/heap-data-structure/">Heap</a></li>
+	</ul>
+</li>
+	<li id="menu-item-135051" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135051"><a href="http://www.geeksforgeeks.org/hashing-data-structure/">Hashing</a></li>
+	<li id="menu-item-135052" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135052"><a href="http://www.geeksforgeeks.org/graph-data-structure-and-algorithms/">Graph</a></li>
+	<li id="menu-item-135053" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135053"><a href="http://www.geeksforgeeks.org/advanced-data-structures/">Advanced Data Structure</a></li>
+	<li id="menu-item-135055" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135055"><a href="http://www.geeksforgeeks.org/matrix/">Matrix</a></li>
+	<li id="menu-item-147716" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147716"><a href="http://www.geeksforgeeks.org/string-data-structure/">Strings</a></li>
+	<li id="menu-item-135056" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135056"><a href="http://www.geeksforgeeks.org/data-structures/">All Data Structures</a></li>
+</ul>
+</li>
+<li id="menu-item-147478" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-147478"><a href="http://www.geeksforgeeks.org/category/program-output/">Languages ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-135006" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-135006"><a href="https://www.geeksforgeeks.org/c-programming-language/">C</a></li>
+	<li id="menu-item-135007" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-135007"><a href="https://www.geeksforgeeks.org/c-plus-plus/">C++</a></li>
+	<li id="menu-item-135012" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-135012"><a href="https://www.geeksforgeeks.org/java/">Java</a></li>
+	<li id="menu-item-137004" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-137004"><a href="https://www.geeksforgeeks.org/python-programming-language/">Python</a></li>
+	<li id="menu-item-255267" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-255267"><a href="https://www.geeksforgeeks.org/csharp-programming-language/">C#</a></li>
+	<li id="menu-item-302822" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-302822"><a href="https://www.geeksforgeeks.org/scala-programming-language/">Scala</a></li>
+	<li id="menu-item-320199" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-320199"><a href="https://www.geeksforgeeks.org/perl-tutorial/">Perl</a></li>
+	<li id="menu-item-182096" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-182096"><a href="https://www.geeksforgeeks.org/php/">PHP</a></li>
+	<li id="menu-item-339380" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-339380"><a href="https://www.geeksforgeeks.org/go-programming-language/">Go Language</a></li>
+	<li id="menu-item-275863" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-275863"><a href="https://www.geeksforgeeks.org/javascript-tutorial/">JavaScript</a></li>
+	<li id="menu-item-278493" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-278493"><a href="https://www.geeksforgeeks.org/jquery-tutorials/">jQuery</a></li>
+	<li id="menu-item-135016" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-135016"><a href="http://www.geeksforgeeks.org/sql-tutorial/">SQL</a></li>
+	<li id="menu-item-251185" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-251185"><a href="https://www.geeksforgeeks.org/html-tutorials/">HTML</a></li>
+	<li id="menu-item-251186" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-251186"><a href="https://www.geeksforgeeks.org/css-tutorials/">CSS</a></li>
+	<li id="menu-item-334712" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-334712"><a href="https://www.geeksforgeeks.org/kotlin-programming-language/">Kotlin</a></li>
+	<li id="menu-item-140854" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-140854"><a title="http://www.geeksforgeeks.org/category/program-output/" href="https://www.geeksforgeeks.org/category/program-output/">Program Output</a></li>
+</ul>
+</li>
+<li id="menu-item-142017" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-142017"><a href="http://www.geeksforgeeks.org/about/interview-corner/">Interview  ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-141326" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-141326"><a href="https://www.geeksforgeeks.org/company-preparation/">Company Prep</a></li>
+	<li id="menu-item-137171" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137171"><a href="http://www.geeksforgeeks.org/interview-preparation-for-software-developer/">Top Topics</a></li>
+	<li id="menu-item-137172" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137172"><a href="https://practice.geeksforgeeks.org/company-tags">Practice Company Questions</a></li>
+	<li id="menu-item-137173" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137173"><a href="http://www.geeksforgeeks.org/about/interview-corner/">Interview Experiences</a></li>
+	<li id="menu-item-137174" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137174"><a href="https://www.geeksforgeeks.org/experienced-interview-experiences-company-wise/">Experienced Interviews</a></li>
+	<li id="menu-item-137175" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137175"><a href="https://www.geeksforgeeks.org/internship-interview-experiences-company-wise/">Internship Interviews</a></li>
+	<li id="menu-item-137176" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137176"><a href="http://www.geeksforgeeks.org/category/competitive-programming/">Competitive Programming</a></li>
+	<li id="menu-item-147581" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147581"><a href="http://www.geeksforgeeks.org/software-design-patterns/">Design Patterns</a></li>
+	<li id="menu-item-137186" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137186"><a href="http://geeksquiz.com/quiz-corner/">Multiple Choice Quizzes</a></li>
+</ul>
+</li>
+<li id="menu-item-137178" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-137178"><a href="http://www.geeksforgeeks.org/student-corner/">Students  ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-137183" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137183"><a href="http://www.geeksforgeeks.org/campus-ambassador-program-by-geeksforgeeks/">Campus Ambassador Program</a></li>
+	<li id="menu-item-204869" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-204869"><a href="https://www.geeksforgeeks.org/computer-science-projects/">Project</a></li>
+	<li id="menu-item-137179" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137179"><a href="http://www.geeksforgeeks.org/geek-of-the-month/">Geek of the Month</a></li>
+	<li id="menu-item-281809" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-281809"><a href="https://www.geeksforgeeks.org/campus-geek-of-the-month/">Campus Geek of the Month</a></li>
+	<li id="menu-item-137570" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137570"><a href="http://geeksquiz.com/placements/">Placement Course</a></li>
+	<li id="menu-item-137180" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137180"><a href="http://www.geeksforgeeks.org/category/competitive-programming/">Competitive Programming</a></li>
+	<li id="menu-item-137181" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137181"><a href="http://www.geeksforgeeks.org/testimonials/">Testimonials</a></li>
+	<li id="menu-item-138863" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-138863"><a href="http://www.geeksforgeeks.org/category/geek-on-the-top/">Geek on the Top</a></li>
+	<li id="menu-item-141974" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-141974"><a href="http://www.geeksforgeeks.org/careers/">Careers</a></li>
+	<li id="menu-item-137378" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-137378"><a href="http://www.geeksforgeeks.org/internship/">Internship</a></li>
+	<li id="menu-item-147457" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147457"><a href="http://www.geeksforgeeks.org/school-programming/">School Programming</a></li>
+</ul>
+</li>
+<li id="menu-item-146712" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146712"><a href="https://www.geeksforgeeks.org/gate-cs-notes-gq/">GATE ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-146714" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146714"><a href="http://www.geeksforgeeks.org/gate-cs-notes-gq/">GATE Notes</a></li>
+	<li id="menu-item-146713" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146713"><a href="http://www.geeksforgeeks.org/gate-corner-2-gq/">GATE CS Corner</a></li>
+	<li id="menu-item-146715" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146715"><a href="http://www.geeksforgeeks.org/lmns-gq/">Last Minute Notes</a></li>
+	<li id="menu-item-146717" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146717"><a href="https://www.geeksforgeeks.org/gate-cs-2020-important-official-dates/">GATE 2020</a></li>
+	<li id="menu-item-146716" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146716"><a href="http://www.geeksforgeeks.org/original-gate-previous-year-question-papers-cse-and-it-gq/">GATE Official Papers</a></li>
+	<li id="menu-item-211326" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-211326"><a href="https://www.geeksforgeeks.org/isro-cs-preparation/">ISRO CS Exam</a></li>
+	<li id="menu-item-211327" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-211327"><a href="https://www.geeksforgeeks.org/ugc-net-cs-preparation/">UGC NET Papers</a></li>
+	<li id="menu-item-211328" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-211328"><a href="https://www.geeksforgeeks.org/ugc-net-cs-notes-according-to-syllabus-of-paper-ii/">UGC NET CS Paper II</a></li>
+	<li id="menu-item-215230" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-215230"><a href="https://www.geeksforgeeks.org/ugc-net-cs-notes-according-to-syllabus-of-paper-iii-core-group/">UGC NET CS Paper III</a></li>
+</ul>
+</li>
+<li id="menu-item-146718" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146718"><a href="http://www.geeksforgeeks.org/articles-on-computer-science-subjects-gq/">CS Subjects ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-203861" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-203861"><a href="https://www.geeksforgeeks.org/gate-cs-notes-gq/">Core Subjects  ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-146727" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146727"><a href="http://www.geeksforgeeks.org/engineering-mathematics-tutorials/">Engg. Mathematics</a></li>
+		<li id="menu-item-146729" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146729"><a href="http://www.geeksforgeeks.org/operating-systems/">Operating Systems</a></li>
+		<li id="menu-item-146721" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146721"><a href="http://www.geeksforgeeks.org/computer-network-tutorials/">Computer Networks</a></li>
+		<li id="menu-item-146724" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146724"><a href="http://www.geeksforgeeks.org/dbms/">DBMS</a></li>
+		<li id="menu-item-146720" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146720"><a href="http://www.geeksforgeeks.org/compiler-design-tutorials/">Compiler Design</a></li>
+		<li id="menu-item-146730" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146730"><a href="http://www.geeksforgeeks.org/theory-of-computation-automata-tutorials/">Theory of Computation</a></li>
+		<li id="menu-item-146726" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146726"><a href="http://www.geeksforgeeks.org/digital-electronics-logic-design-tutorials/">Digital Electronics</a></li>
+		<li id="menu-item-146722" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146722"><a href="http://www.geeksforgeeks.org/computer-organization-and-architecture-tutorials/">Computer Organization &#038; Architecture</a></li>
+		<li id="menu-item-213498" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-213498"><a href="https://www.geeksforgeeks.org/software-engineering/">Software Engineering</a></li>
+		<li id="menu-item-200760" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-200760"><a href="https://www.geeksforgeeks.org/microprocessor-tutorials/">Microprocessor</a></li>
+	</ul>
+</li>
+	<li id="menu-item-147831" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147831"><a href="http://www.geeksforgeeks.org/web-technology/">Web Technology</a></li>
+	<li id="menu-item-147512" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147512"><a href="http://www.geeksforgeeks.org/advanced-computer-subjects-tutorials/">Advanced Topics</a></li>
+	<li id="menu-item-203862" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-203862"><a href="https://www.geeksforgeeks.org/machine-learning/">Machine Learning</a></li>
+	<li id="menu-item-204870" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-204870"><a href="https://www.geeksforgeeks.org/computer-graphics-2/">Computer Graphics</a></li>
+	<li id="menu-item-146725" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146725"><a href="http://www.geeksforgeeks.org/category/geeksquiz/articles-gq/difference-gq/">What&#8217;s Difference?</a></li>
+</ul>
+</li>
+<li id="menu-item-140855" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-140855"><a href="http://quiz.geeksforgeeks.org/quiz-corner/">Quizzes ▼</a>
+<ul class="sub-menu">
+	<li id="menu-item-146748" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146748"><a href="http://www.geeksforgeeks.org/quizzes-on-programming-languages-gq/">Languages ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-146743" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146743"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#C%20Programming%20Mock%20Tests">C</a></li>
+		<li id="menu-item-146745" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146745"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#C++%20Programming%20Mock%20Tests">C++</a></li>
+		<li id="menu-item-146746" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146746"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Java%20Programming%20Mock%20Tests">Java</a></li>
+		<li id="menu-item-146747" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146747"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Python%20Programming%20Mock%20Tests">Python</a></li>
+	</ul>
+</li>
+	<li id="menu-item-146825" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-146825"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Data%20Structures%20Mock%20Tests">CS Subjectwise ►</a>
+	<ul class="sub-menu">
+		<li id="menu-item-146731" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146731"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Data%20Structures%20Mock%20Tests">Data Structures</a></li>
+		<li id="menu-item-146732" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146732"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Algorithms%20Mock%20Tests">Algorithms</a></li>
+		<li id="menu-item-146733" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146733"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Operating%20Systems%20Mock%20Tests">Operating Systems</a></li>
+		<li id="menu-item-146734" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146734"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#DBMS%20Mock%20Tests">DBMS</a></li>
+		<li id="menu-item-146735" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146735"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Compiler%20Design%20Mock%20Tests">Compiler Design</a></li>
+		<li id="menu-item-146736" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146736"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Computer%20Networks%20Mock%20Tests">Computer Networks</a></li>
+		<li id="menu-item-146737" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146737"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Theory%20of%20Computation%20Mock%20Tests">Theory of Computation</a></li>
+		<li id="menu-item-146738" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146738"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Computer%20Organization%20and%20Architecture">Computer Organization</a></li>
+		<li id="menu-item-146739" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146739"><a href="http://www.geeksforgeeks.org/software-engineering-gq/">Software Engineering</a></li>
+	</ul>
+</li>
+	<li id="menu-item-146740" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146740"><a href="http://www.geeksforgeeks.org/html-and-xml-gq/">HTML &#038; XML</a></li>
+	<li id="menu-item-146741" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146741"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Engineering%20Mathematics">Engg. Mathematics</a></li>
+	<li id="menu-item-146742" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-146742"><a href="http://www.geeksforgeeks.org/quiz-corner-gq/#Aptitude%20Mock%20Tests">Aptitude</a></li>
+</ul>
+</li>
+<li id="menu-item-135367" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-135367"><a href="https://www.geeksforgeeks.org/category/guestblogs/">GBlog</a></li>
+<li id="menu-item-141885" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-141885"><a href="http://www.geeksforgeeks.org/puzzles/">Puzzles</a></li>
+<li id="menu-item-141816" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-141816"><a href="https://practice.geeksforgeeks.org/">Practice</a></li>
+</ul></div>		</nav><!-- #site-navigation -->
+		<div class="clear"></div>
+	</header><!-- #masthead -->
+<button id="scrollTopBtn" title="Scroll to Top" type="button" class="btn btn-success">&#x25B2;</button>
+	<div id="main" class="wrapper">
+
+<!-- Following 2 files are included for Article Feedback Project 'GFGSW-556' -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+
+<div class="leftSideBarParent">
+    <div class="leftSideBar">
+        <ul class="leftBarList"><li><a href='https://www.geeksforgeeks.org/python-django-news-app/' >Python | Django News App</a></li><li><a href='https://www.geeksforgeeks.org/python-speech-recognition-on-large-audio-files/' >Python | Speech recognition on large audio files</a></li><li><a href='https://www.geeksforgeeks.org/ml-training-image-classifier-using-tensorflow-object-detection-api/' >ML | Training Image Classifier using Tensorflow Object Detection API</a></li><li><a href='https://www.geeksforgeeks.org/handwritten-equation-solver-in-python/' >Handwritten Equation Solver in Python</a></li><li><a href='https://www.geeksforgeeks.org/invisible-cloak-using-opencv-python-project/' >Invisible Cloak using OpenCV | Python Project</a></li><li><a href='https://www.geeksforgeeks.org/menu-driven-program-for-bank-management-system/' >Menu-Driven Program for Bank Management System</a></li><li><a href='https://www.geeksforgeeks.org/java-swing-simple-user-registration-form/' >Java Swing | Simple User Registration Form</a></li><li><a href='https://www.geeksforgeeks.org/univariate-linear-regression-in-python/' >Univariate Linear Regression in Python</a></li><li><a href='https://www.geeksforgeeks.org/perl-database-management-using-dbi/' >Perl | Database management using DBI</a></li><li><a href='https://www.geeksforgeeks.org/like-instagram-pictures-using-selenium-python/' >Like instagram pictures using Selenium | Python</a></li><li><a href='https://www.geeksforgeeks.org/python-maintaining-grocery-list/' >Python | Maintaining Grocery list</a></li><li><a href='https://www.geeksforgeeks.org/download-instagram-profile-pic-using-python/' >Download Instagram profile pic using Python</a></li><li><a href='https://www.geeksforgeeks.org/google-chrome-dino-bot-using-image-recognition-python/' >Google Chrome Dino Bot using Image Recognition | Python</a></li></ul>
+    <div class="promotional" style="margin-top:15px;max-width:300px;">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- GfG-LeftBar -->
+    <ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-9465609616171866"
+    data-ad-slot="1800357638"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+    </div><div class="promotional" style="margin-top:15px;"><a target="_blank" href="https://practice.geeksforgeeks.org/courses/cs-core-subjects?utm_source=geeksforgeeks&utm_medium=referral&utm_campaign=GfG_Left_CS_Core"><img style="width: 100%;" src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190906180053/GFG-LB-CS-Core2.png"></a></div>    </div>
+</div> 
+	<div id="primary" class="site-content">
+		<div id="content" role="main">
+                        							 	<article id="post-150397" class="post-150397 post type-post status-publish format-standard hentry category-project category-python">
+				<header class="entry-header">
+						<h1 class="entry-title">Morse Code Translator In Python</h1>
+				
+						</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>Morse code is a method of transmitting text information as a series of on-off tones, lights, or clicks that can be directly understood by a skilled listener or observer without special equipment. It is named for Samuel F. B. Morse, an inventor of the telegraph.</p>
+<p align="center"><strong>Algorithm</strong></p>
+<p>The algorithm is very simple. Every character in the English language is substituted by a series of &#8216;dots&#8217; and &#8216;dashes&#8217; or sometimes just singular &#8216;dot&#8217; or &#8216;dash&#8217; and vice versa.<br />
+Please refer this <a href="https://en.wikipedia.org/wiki/Morse_code#/media/File:International_Morse_Code.svg">wikipedia image </a>for details.</p><br/>
+        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+          <!-- post_top_responsive -->
+          <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-9465609616171866"
+          data-ad-slot="4501693235"
+          data-ad-format="auto"></ins>
+          <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+        <br/>
+            
+<p align="center"><strong>Encryption</strong></p>
+<ol>
+<li>In case of encryption we extract each character (if not a space) from a word one at a time and match it with its corresponding morse code stored in whichever data structure we have chosen(if you are coding in python, dictionaries can turn out to be very useful in this case)</li>
+<li>Store the morse code in a variable which will contain our encoded string and then we add a space to our string which will contain the result.</li>
+<li>While encoding in morse code we need to add 1 space between every character and 2 consecutive spaces between every word.</li>
+<li>If the character is a space then add another space to the variable containing the result. We repeat this process till we traverse the whole string</li>
+</ol>
+<p align="center"><strong>Decryption</strong></p>
+<ol>
+<li>In case of decryption, we start by adding a space at the end of the string to be decoded (this will be explained later).</li>
+<li>Now we keep extracting characters from the string till we are not getting any space.</li>
+<li>As soon as we get a space we look up the corresponding English language character to the extracted sequence of characters (or our morse code) and add it to a variable which will store the result.</li>
+<li>Remember keeping track of the space is the most important part of this decryption process. As soon as we get 2 consecutive spaces we will add another space to our variable containing the decoded string.</li>
+<li>The last space at the end of the string will help us identify the last sequence of morse code characters (since a space acts as a check for extracting characters and start decoding them).</li>
+</ol>
+<p align="center"><strong>Implementation</strong></p>
+<p>Python provides a data structure called <a href="https://www.geeksforgeeks.org/python-set-4-dictionary-keywords-python/">dictionary</a> which stores information in the form of key-value pairs which is very convenient for implementing a cipher such as the morse code. We can save the morse code chart in a dictionary where <strong>(key-value pairs) =&gt; (English Characters-Morse Code)</strong>. The plaintext (English characters) take the place of keys and the ciphertext (Morse code) form the values of the corresponding keys. The values of keys can be accessed from the dictionary in the same way we access the values of an array through their index and vice versa.</p>
+<div class="code-block">
+<div class="code-gutter">
+<div class="editor-buttons-container">
+<div class="editor-buttons">
+<div class="editor-buttons-div" title="Run and Edit">
+                                    <i id="copy-code-button" title="Copy Code" class="material-icons code-sidebar-button copy-code-button">filter_none</i></p>
+<div  id = "run-and-edit-loader" class="ring-load"></div>
+<p>                                    <i id="run-and-edit-button" title="Edit Code" lang="python"  class="material-icons code-sidebar-button">edit</i><br />
+                                    <i id="close-code-editor-button" title="Close Editor" class="material-icons code-sidebar-button close-code-editor-button">close</i></p>
+<div id = "run-code-loader" class="ring-load"></div>
+<p>                                    <i id="run-code-button" lang="python" title="Run Code and See Output" class="material-icons code-sidebar-button">play_arrow</i></p>
+<div  id = "generate-url-loader" class="ring-load"></div>
+<p>                                    <i id="generate-url-and-run-button" title="Run Code and Generate IDE URL" lang="python"  class="material-icons code-sidebar-button generate-url-and-run-button">link</i><br />
+                                    <i title="Dark Mode" class="material-icons code-sidebar-button dark-editor-button">brightness_4</i><br />
+                                    <i id = "edit-on-ide-button" title="Edit on IDE"  lang="python" class="material-icons code-sidebar-button edit-on-ide-button">code</i>
+                                </div>
+</p></div>
+</p></div>
+</p></div>
+<div class= "code-container">
+<div id="highlighter_306438" class="syntaxhighlighter nogutter  ">
+<table border="0" cellpadding="0" cellspacing="0">
+<tbody>
+<tr>
+<td class="code">
+<div class="container">
+<div class="line number1 index0 alt2"><code class="comments"># Python program to implement Morse Code Translator </code></div>
+<div class="line number2 index1 alt1"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number3 index2 alt2"><code class="comments">''' </code></div>
+<div class="line number4 index3 alt1"><code class="comments">VARIABLE KEY </code></div>
+<div class="line number5 index4 alt2"><code class="comments">'cipher' -> 'stores the morse translated form of the english string' </code></div>
+<div class="line number6 index5 alt1"><code class="comments">'decipher' -> 'stores the english translated form of the morse string' </code></div>
+<div class="line number7 index6 alt2"><code class="comments">'citext' -> 'stores morse code of a single character' </code></div>
+<div class="line number8 index7 alt1"><code class="comments">'i' -> 'keeps count of the spaces between morse characters' </code></div>
+<div class="line number9 index8 alt2"><code class="comments">'message' -> 'stores the string to be encoded or decoded' </code></div>
+<div class="line number10 index9 alt1"><code class="comments">'''</code></div>
+<div class="line number11 index10 alt2"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number12 index11 alt1"><code class="comments"># Dictionary representing the morse code chart </code></div>
+<div class="line number13 index12 alt2"><code class="plain">MORSE_CODE_DICT </code><code class="keyword">=</code> <code class="plain">{ </code><code class="string">'A'</code><code class="plain">:</code><code class="string">'.-'</code><code class="plain">, </code><code class="string">'B'</code><code class="plain">:</code><code class="string">'-...'</code><code class="plain">, </code></div>
+<div class="line number14 index13 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'C'</code><code class="plain">:</code><code class="string">'-.-.'</code><code class="plain">, </code><code class="string">'D'</code><code class="plain">:</code><code class="string">'-..'</code><code class="plain">, </code><code class="string">'E'</code><code class="plain">:</code><code class="string">'.'</code><code class="plain">, </code></div>
+<div class="line number15 index14 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'F'</code><code class="plain">:</code><code class="string">'..-.'</code><code class="plain">, </code><code class="string">'G'</code><code class="plain">:</code><code class="string">'--.'</code><code class="plain">, </code><code class="string">'H'</code><code class="plain">:</code><code class="string">'....'</code><code class="plain">, </code></div>
+<div class="line number16 index15 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'I'</code><code class="plain">:</code><code class="string">'..'</code><code class="plain">, </code><code class="string">'J'</code><code class="plain">:</code><code class="string">'.---'</code><code class="plain">, </code><code class="string">'K'</code><code class="plain">:</code><code class="string">'-.-'</code><code class="plain">, </code></div>
+<div class="line number17 index16 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'L'</code><code class="plain">:</code><code class="string">'.-..'</code><code class="plain">, </code><code class="string">'M'</code><code class="plain">:</code><code class="string">'--'</code><code class="plain">, </code><code class="string">'N'</code><code class="plain">:</code><code class="string">'-.'</code><code class="plain">, </code></div>
+<div class="line number18 index17 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'O'</code><code class="plain">:</code><code class="string">'---'</code><code class="plain">, </code><code class="string">'P'</code><code class="plain">:</code><code class="string">'.--.'</code><code class="plain">, </code><code class="string">'Q'</code><code class="plain">:</code><code class="string">'--.-'</code><code class="plain">, </code></div>
+<div class="line number19 index18 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'R'</code><code class="plain">:</code><code class="string">'.-.'</code><code class="plain">, </code><code class="string">'S'</code><code class="plain">:</code><code class="string">'...'</code><code class="plain">, </code><code class="string">'T'</code><code class="plain">:</code><code class="string">'-'</code><code class="plain">, </code></div>
+<div class="line number20 index19 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'U'</code><code class="plain">:</code><code class="string">'..-'</code><code class="plain">, </code><code class="string">'V'</code><code class="plain">:</code><code class="string">'...-'</code><code class="plain">, </code><code class="string">'W'</code><code class="plain">:</code><code class="string">'.--'</code><code class="plain">, </code></div>
+<div class="line number21 index20 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'X'</code><code class="plain">:</code><code class="string">'-..-'</code><code class="plain">, </code><code class="string">'Y'</code><code class="plain">:</code><code class="string">'-.--'</code><code class="plain">, </code><code class="string">'Z'</code><code class="plain">:</code><code class="string">'--..'</code><code class="plain">, </code></div>
+<div class="line number22 index21 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'1'</code><code class="plain">:</code><code class="string">'.----'</code><code class="plain">, </code><code class="string">'2'</code><code class="plain">:</code><code class="string">'..---'</code><code class="plain">, </code><code class="string">'3'</code><code class="plain">:</code><code class="string">'...--'</code><code class="plain">, </code></div>
+<div class="line number23 index22 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'4'</code><code class="plain">:</code><code class="string">'....-'</code><code class="plain">, </code><code class="string">'5'</code><code class="plain">:</code><code class="string">'.....'</code><code class="plain">, </code><code class="string">'6'</code><code class="plain">:</code><code class="string">'-....'</code><code class="plain">, </code></div>
+<div class="line number24 index23 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'7'</code><code class="plain">:</code><code class="string">'--...'</code><code class="plain">, </code><code class="string">'8'</code><code class="plain">:</code><code class="string">'---..'</code><code class="plain">, </code><code class="string">'9'</code><code class="plain">:</code><code class="string">'----.'</code><code class="plain">, </code></div>
+<div class="line number25 index24 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'0'</code><code class="plain">:</code><code class="string">'-----'</code><code class="plain">, </code><code class="string">', '</code><code class="plain">:</code><code class="string">'--..--'</code><code class="plain">, </code><code class="string">'.'</code><code class="plain">:</code><code class="string">'.-.-.-'</code><code class="plain">, </code></div>
+<div class="line number26 index25 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'?'</code><code class="plain">:</code><code class="string">'..--..'</code><code class="plain">, </code><code class="string">'/'</code><code class="plain">:</code><code class="string">'-..-.'</code><code class="plain">, </code><code class="string">'-'</code><code class="plain">:</code><code class="string">'-....-'</code><code class="plain">, </code></div>
+<div class="line number27 index26 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="string">'('</code><code class="plain">:</code><code class="string">'-.--.'</code><code class="plain">, </code><code class="string">')'</code><code class="plain">:</code><code class="string">'-.--.-'</code><code class="plain">} </code></div>
+<div class="line number28 index27 alt1"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number29 index28 alt2 highlighted"><code class="comments"># Function to encrypt the string </code></div>
+<div class="line number30 index29 alt1 highlighted"><code class="comments"># according to the morse code chart </code></div>
+<div class="line number31 index30 alt2 highlighted"><code class="keyword">def</code> <code class="plain">encrypt(message): </code></div>
+<div class="line number32 index31 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">cipher </code><code class="keyword">=</code> <code class="plain">'' </code></div>
+<div class="line number33 index32 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">for</code> <code class="plain">letter </code><code class="keyword">in</code> <code class="plain">message: </code></div>
+<div class="line number34 index33 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">if</code> <code class="plain">letter !</code><code class="keyword">=</code> <code class="string">' '</code><code class="plain">: </code></div>
+<div class="line number35 index34 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number36 index35 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># Looks up the dictionary and adds the </code></div>
+<div class="line number37 index36 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># correspponding morse code </code></div>
+<div class="line number38 index37 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># along with a space to separate </code></div>
+<div class="line number39 index38 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># morse codes for different characters </code></div>
+<div class="line number40 index39 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">cipher </code><code class="keyword">+</code><code class="keyword">=</code> <code class="plain">MORSE_CODE_DICT[letter] </code><code class="keyword">+</code> <code class="string">' '</code></div>
+<div class="line number41 index40 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">else</code><code class="plain">: </code></div>
+<div class="line number42 index41 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># 1 space indicates different characters </code></div>
+<div class="line number43 index42 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># and 2 indicates different words </code></div>
+<div class="line number44 index43 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">cipher </code><code class="keyword">+</code><code class="keyword">=</code> <code class="string">' '</code></div>
+<div class="line number45 index44 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number46 index45 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">return</code> <code class="plain">cipher </code></div>
+<div class="line number47 index46 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number48 index47 alt1 highlighted"><code class="comments"># Function to decrypt the string </code></div>
+<div class="line number49 index48 alt2 highlighted"><code class="comments"># from morse to english </code></div>
+<div class="line number50 index49 alt1 highlighted"><code class="keyword">def</code> <code class="plain">decrypt(message): </code></div>
+<div class="line number51 index50 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number52 index51 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># extra space added at the end to access the </code></div>
+<div class="line number53 index52 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># last morse code </code></div>
+<div class="line number54 index53 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">message </code><code class="keyword">+</code><code class="keyword">=</code> <code class="string">' '</code></div>
+<div class="line number55 index54 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number56 index55 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">decipher </code><code class="keyword">=</code> <code class="plain">'' </code></div>
+<div class="line number57 index56 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">citext </code><code class="keyword">=</code> <code class="plain">'' </code></div>
+<div class="line number58 index57 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">for</code> <code class="plain">letter </code><code class="keyword">in</code> <code class="plain">message: </code></div>
+<div class="line number59 index58 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number60 index59 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># checks for space </code></div>
+<div class="line number61 index60 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">if</code> <code class="plain">(letter !</code><code class="keyword">=</code> <code class="string">' '</code><code class="plain">): </code></div>
+<div class="line number62 index61 alt1 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number63 index62 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># counter to keep track of space </code></div>
+<div class="line number64 index63 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">i </code><code class="keyword">=</code> <code class="value">0</code></div>
+<div class="line number65 index64 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number66 index65 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># storing morse code of a single character </code></div>
+<div class="line number67 index66 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">citext </code><code class="keyword">+</code><code class="keyword">=</code> <code class="plain">letter </code></div>
+<div class="line number68 index67 alt1 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number69 index68 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># in case of space </code></div>
+<div class="line number70 index69 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">else</code><code class="plain">: </code></div>
+<div class="line number71 index70 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># if i = 1 that indicates a new character </code></div>
+<div class="line number72 index71 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">i </code><code class="keyword">+</code><code class="keyword">=</code> <code class="value">1</code></div>
+<div class="line number73 index72 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number74 index73 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># if i = 2 that indicates a new word </code></div>
+<div class="line number75 index74 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">if</code> <code class="plain">i </code><code class="keyword">=</code><code class="keyword">=</code> <code class="value">2</code> <code class="plain">: </code></div>
+<div class="line number76 index75 alt1 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number77 index76 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># adding space to separate words </code></div>
+<div class="line number78 index77 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">decipher </code><code class="keyword">+</code><code class="keyword">=</code> <code class="string">' '</code></div>
+<div class="line number79 index78 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">else</code><code class="plain">: </code></div>
+<div class="line number80 index79 alt1 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number81 index80 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="comments"># accessing the keys using their values (reverse of encryption) </code></div>
+<div class="line number82 index81 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">decipher </code><code class="keyword">+</code><code class="keyword">=</code> <code class="functions">list</code><code class="plain">(MORSE_CODE_DICT.keys())[</code><code class="functions">list</code><code class="plain">(MORSE_CODE_DICT </code></div>
+<div class="line number83 index82 alt2 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">.values()).index(citext)] </code></div>
+<div class="line number84 index83 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">citext </code><code class="keyword">=</code> <code class="plain">'' </code></div>
+<div class="line number85 index84 alt2 highlighted"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number86 index85 alt1 highlighted"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="keyword">return</code> <code class="plain">decipher </code></div>
+<div class="line number87 index86 alt2"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number88 index87 alt1"><code class="comments"># Hard-coded driver function to run the program </code></div>
+<div class="line number89 index88 alt2"><code class="keyword">def</code> <code class="plain">main(): </code></div>
+<div class="line number90 index89 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">message </code><code class="keyword">=</code> <code class="string">"GEEKS-FOR-GEEKS"</code></div>
+<div class="line number91 index90 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">result </code><code class="keyword">=</code> <code class="plain">encrypt(message.upper()) </code></div>
+<div class="line number92 index91 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="functions">print</code> <code class="plain">(result) </code></div>
+<div class="line number93 index92 alt2"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number94 index93 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">message </code><code class="keyword">=</code> <code class="string">"--. . . -.- ... -....- ..-. --- .-. -....- --. . . -.- ... "</code></div>
+<div class="line number95 index94 alt2"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">result </code><code class="keyword">=</code> <code class="plain">decrypt(message) </code></div>
+<div class="line number96 index95 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="functions">print</code> <code class="plain">(result) </code></div>
+<div class="line number97 index96 alt2"><code class="undefined spaces">&nbsp;</code>&nbsp;</div>
+<div class="line number98 index97 alt1"><code class="comments"># Executes the main function </code></div>
+<div class="line number99 index98 alt2"><code class="keyword">if</code> <code class="plain">__name__ </code><code class="keyword">=</code><code class="keyword">=</code> <code class="string">'__main__'</code><code class="plain">: </code></div>
+<div class="line number100 index99 alt1"><code class="undefined spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="plain">main() </code></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+<div class="code-editor-container"></div>
+</p></div>
+<div class="code-output-container">
+<div class = "output-block">
+                        <i id="output-icon" title="Output" class="material-icons code-sidebar-button output-icon">chevron_right</i></p>
+<pre class="output-pre"></pre>
+</p></div>
+<div class = "ide-link-div">
+                        <i id="copy-url-button" title="Copy Generated Ide URL" class="material-icons code-sidebar-button copy-url-button">filter_none</i></p>
+<pre id="ide-url"></pre>
+</p></div>
+</p></div>
+<pre>
+<strong>Output:</strong>
+--. . . -.- ... -....- ..-. --- .-. -....- --. . . -.- ... 
+GEEKS-FOR-GEEKS
+</pre>
+<p>This article is contributed by <a href="https://www.linkedin.com/in/palash25" target="_blank">Palash Nigam</a> . If you like GeeksforGeeks and would like to contribute, you can also write an article using <a href="http://www.contribute.geeksforgeeks.org">contribute.geeksforgeeks.org</a> or mail your article to contribute@geeksforgeeks.org. See your article appearing on the GeeksforGeeks main page and help other Geeks.</p>
+<p>Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.</p>
+<br/><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+          <!-- post_bottom_responsive -->
+          <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-9465609616171866"
+          data-ad-slot="8385097921"
+          data-ad-format="auto"></ins>
+          <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+          <br/>
+            <div id="personalNoteDiv" class="clear hideIt">
+    <div class="personalNoteHeader clear">
+        <span class="noteHeaderText">My Personal Notes</span>
+        <span class="hideNotesDivIcon"><i class="material-icons personalNotesIcon">arrow_drop_up</i></span>
+    </div>
+    <div class="collapsableDivPersonalNotes">
+        <textarea maxlength="5000" id="enteredPersonalNote" class="personalNoteStyle" placeholder="Add your personal notes here! (max 5000 chars)" ></textarea>
+        <div class="saveNoteDiv">
+            <span class="processSaveNote"></span>
+            <button class="savePersonalNoteButton" onclick="saveUserPersonalNote()">Save</button>
+        </div>
+    </div>
+</div><div class="recommendedPostsDiv"><h2 style='font-size:20px; color: #838383'>Recommended Posts:</h2><ul><li><a href='https://www.geeksforgeeks.org/project-idea-audio-sign-language-translator/'>Project Idea | Audio to Sign Language Translator</a></li><li><a href='https://www.geeksforgeeks.org/project-idea-sign-language-translator-speech-impaired/'>Project Idea | Sign Language Translator for Speech-Impaired</a></li><li><a href='https://www.geeksforgeeks.org/issues-with-using-c-code-in-python-set-2/'>Issues with using C code in Python | Set 2</a></li><li><a href='https://www.geeksforgeeks.org/python-code-to-convert-sop-to-pos/'>Python code to convert SOP to POS</a></li><li><a href='https://www.geeksforgeeks.org/code-introspection-in-python/'>Code introspection in Python</a></li><li><a href='https://www.geeksforgeeks.org/issues-with-using-c-code-in-python-set-1/'>Issues with using C code in Python | Set 1</a></li><li><a href='https://www.geeksforgeeks.org/how-to-run-python-code-on-google-colaboratory/'>How to run Python code on Google Colaboratory</a></li><li><a href='https://www.geeksforgeeks.org/debugging-python-code-using-breakpoint-and-pdb/'>Debugging Python code using breakpoint() and pdb</a></li><li><a href='https://www.geeksforgeeks.org/execute-string-code-python/'>Execute a String of Code in Python</a></li><li><a href='https://www.geeksforgeeks.org/different-python-ides-and-code-editors/'>Different Python IDEs and Code Editors</a></li><li><a href='https://www.geeksforgeeks.org/packaging-and-publishing-python-code/'>Packaging and Publishing Python code</a></li><li><a href='https://www.geeksforgeeks.org/optimization-tips-python-code/'>Optimization Tips for Python Code</a></li><li><a href='https://www.geeksforgeeks.org/understanding-code-reuse-modularity-python-3/'>Understanding Code Reuse and Modularity in Python 3</a></li><li><a href='https://www.geeksforgeeks.org/performing-google-search-using-python-code/'>Performing Google Search using Python code</a></li><li><a href='https://www.geeksforgeeks.org/python-generate-qr-code-using-pyqrcode-module/'>Python | Generate QR Code using  pyqrcode module</a></li></ul></div><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- post_bottom_responsive -->
+      <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-9465609616171866"
+      data-ad-slot="8385097921"
+      data-ad-format="auto"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+      <br/>
+      <br/>
+      
+					
+		<footer class="entry-meta">
+    <span><b>Article Tags : </b><div class="practiceButton"><a href="https://www.geeksforgeeks.org/category/project/" rel="category tag">Project</a></div><div class="practiceButton"><a href="https://www.geeksforgeeks.org/category/programming-language/python/" rel="category tag">Python</a></div></span><span></span>
+           	<br/><div id="improveArticle" style="float: right;cursor: pointer;"></div>        <div class="plugins upvoteArticle">
+         <div>
+         <i class="material-icons upvoteIcon login-modal-btn" title="Upvote">thumb_up</i><br> 
+                <span class="upvoteText">2</span></div>
+                <div class="plugins" style="text-align:right;">
+        <div pid="150397" ptitle="Morse Code Translator In Python"id="markPlugin"><br><br><div class="lists">
+        <input id="todo" type="checkbox" class="mark filled-in login-modal-btn">
+        <label class="checkbox" for="todo">To-do</label>
+        <input id="done" type="checkbox" class="mark filled-in login-modal-btn">
+        <label class="checkbox" for="done">Done</label>
+        </div></div>
+    <div class ="difficultyRating" pid="150397" ptitle="Morse Code Translator In Python" id="ratePlugin">
+            <div class="techno dropdown">
+            <span id="rating_box" class="avg-rating level-1">1.8</span>
+            <br>
+            <br>
+             
+                 <span id="vote_count">Based on <b>5</b> vote(s)</span>
+                    <div class="markRating dropdown-content">
+            <input rating="1" type="button" class="box basic login-modal-btn"  value="Basic"/>
+            <input rating="2" type="button" class="box easy login-modal-btn"   value="Easy"/>
+            <input rating="3" type="button" class="box medium login-modal-btn" value="Medium"/>
+            <input rating="4" type="button" class="box hard login-modal-btn"   value="Hard"/>
+            <input rating="5" type="button" class="box expert login-modal-btn" value="Expert"/>
+        </div>
+        <span class="process"></span>
+        </div></div>
+        </div>
+        <div class="plugins userActionButtons">
+        <div pid="150397" ptitle="Morse Code Translator In Python" id="feedbackButtonDiv" style="display:inline-block"></div>
+        <div pid="150397" ptitle="Morse Code Translator In Python" id="addNoteButtonDiv" style="display:inline-block"></div>
+        <div pid="150397" ptitle="Morse Code Translator In Python" id="improveArticleButtonDiv" style="display:inline-block"></div>
+        </div>
+<div class="common-bottom">Please write to us at contribute@geeksforgeeks.org to report any issue with the above content.</div>          	
+					</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+
+
+
+
+<!-- Added on 29 Oct 2015 for next and previous from same category -->
+
+<nav class="nav-single">
+
+ <div class="assistive-text">Post navigation</div>
+    <span class="nav-previous"><div class="col-md-12 prev">Previous</div> <i class="material-icons">first_page</i> <a href="https://www.geeksforgeeks.org/text-analysis-in-python-3/" rel="prev"> Text Analysis in Python 3</a></span>
+ 
+    <span class="nav-next"><div class="col-md-12 next">Next</div> <i class="material-icons">last_page</i> <a href="https://www.geeksforgeeks.org/multiprocessing-python-set-1/" rel="next">Multiprocessing in Python | Set 1 (Introduction) </a> </span>
+
+				</nav><!-- .nav-single -->
+<!--
+<script type="text/javascript">
+	
+				arrPost.push('');
+	
+		   <?php// } ?>
+
+</script>
+-->
+
+
+
+<div id="author" name="Tech Manager"></div>
+<br></br>
+
+<style type="text/css">
+ 
+#share-buttons img {
+width: 35px;
+padding: 5px;
+border: 0;
+box-shadow: 0;
+display: inline;
+}
+</style>
+
+
+<br></br>
+<div id="ide_link">
+<p>Writing code in comment? Please use <a href="https://ide.geeksforgeeks.org/">ide.geeksforgeeks.org</a>, generate link and share the link here.</a></p>
+</div>
+<br/>
+<div style="display:flex">
+<button id="comment" class="action-button" style="width:45%;cursor: pointer;margin-right:10%;box-shadow: 0 2px 5px 0 rgba(0,0,0,0.4), 0 6px 20px 0 rgba(0,0,0,0);border-color: #4cb96b;border-radius: 4px;">Load Comments</button>
+</div>
+
+<div id="disqus_thread"></div>
+
+					</div><!-- #content -->
+	</div><!-- #primary -->
+
+
+			<div id="secondary" class="widget-area" role="complementary">
+			<aside id="text-11" class="widget widget_text">			<div class="textwidget"><p><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:600px"
+     data-ad-client="ca-pub-9465609616171866"
+     data-ad-slot="4402736037"></ins><br />
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></p>
+</div>
+		</aside><div class="widget widget_text">            <a href="https://practice.geeksforgeeks.org/courses/dsa-self-paced?utm_source=geeksforgeeks&utm_medium=referral&utm_campaign=GfG_Right_Top_DSA_SP_Info" target="_blank">
+            <img src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190827143910/DSA-SP-Info-Right-Top.png" alt="auto" width="auto" height="auto">
+            </a>
+            </div><aside id="text-4" class="widget widget_text">			<div class="textwidget"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- ResponsiveRightBarMay16 -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9465609616171866"
+     data-ad-slot="7089558833"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+		</aside>                    <div class="rightSideBarParent">
+                    <div class="leftSideBar rightSideBar">
+                    <div class="rightbar_lefthead"> </div>
+                    <div class="rightbar_head">Most popular articles</div>
+                    <div class="rightbar_righthead"> </div>
+                    <ul class="leftBarList">
+                        <li><a href='https://www.geeksforgeeks.org/must-do-coding-questions-for-companies-like-amazon-microsoft-adobe/' target='_blank'>Must Do Coding Questions for Companies like Amazon, Microsoft, Adobe, ...</a></li><li><a href='https://www.geeksforgeeks.org/must-coding-questions-company-wise/' target='_blank'>Must Do Coding Questions Company-wise</a></li><li><a href='https://www.geeksforgeeks.org/building-heap-from-array/' target='_blank'>Building Heap from Array</a></li><li><a href='https://www.geeksforgeeks.org/maximum-absolute-difference-in-an-array/' target='_blank'>Maximum absolute difference in an array</a></li><li><a href='https://www.geeksforgeeks.org/google-interview-questions/' target='_blank'>Google Interview Questions</a></li>                    </ul>  
+                    </div>
+                    </div><br>
+                    <aside id="text-7" class="widget widget_text">			<div class="textwidget"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- GfGSideBottomResponsive -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9465609616171866"
+     data-ad-slot="5749413230"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+		</aside>                 <div class="rightSideBarParent">
+                    <div class="leftSideBar rightSideBar"> 
+                    <div class="rightbar_lefthead"> </div>
+                    <div class="rightbar_head">Most visited in Python</div>
+                    <div class="rightbar_righthead"> </div>
+                    <ul class="leftBarList">
+                    <li><a href='https://www.geeksforgeeks.org/how-to-become-a-data-scientist-in-2019-a-complete-guide/' >How to Become a Data Scientist in 2019: A Complete Guide</a></li><li><a href='https://www.geeksforgeeks.org/how-to-start-learning-machine-learning/' >How to Start Learning Machine Learning?</a></li><li><a href='https://www.geeksforgeeks.org/how-to-become-a-data-analyst-in-2019-a-complete-guide/' >How to Become a Data Analyst in 2019: A Complete Guide</a></li><li><a href='https://www.geeksforgeeks.org/how-to-use-google-colab/' >How to use Google Colab</a></li><li><a href='https://www.geeksforgeeks.org/python-get-all-substrings-of-given-string/' >Python | Get all substrings of given string</a></li>                    </ul>
+                    </div>
+                    </div><br> <div class="widget widget_text">                <a href="https://www.geeksforgeeks.org/the-technical-scripter-event-by-geeksforgeeks-2/?utm_source=geeksforgeeks&utm_medium=banner&utm_campaign=GFG_Right_Bottom_TS_2019" target="_blank">
+                <img src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/20191004173221/TS-2019-right-bottom.jpg" width="auto" height="auto">
+                </a>
+                </div>		</div><!-- #secondary -->
+		</div><!-- #main .wrapper -->
+
+<div style="width:100%;background-color:#f0f0f0">
+<br/>
+<br/>
+<center>
+<!-- Footer -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-9465609616171866"
+     data-ad-slot="2757948178"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+<br/>
+<br/>
+</center>
+</div>
+  <footer style="margin-bottom:-3% !important;">
+    <div id="container-g4g-footer">
+
+        <div id="footer">
+            <div class="logo">
+                <ul class="gfg-logo-ul">
+                    <li>
+                      <a href="https://www.geeksforgeeks.org/">
+                        <img src="https://media.geeksforgeeks.org/common/GeeksforGeeksLogoFooterSmall.png" alt="GeeksforGeeks">
+                      </a>
+                    </li>
+                </ul>
+                <ul class="social-ul">
+                     <li>5th Floor, A-118,</li>
+                     <li>Sector-136, Noida, Uttar Pradesh - 201305</li>
+                     <li>feedback@geeksforgeeks.org</li>
+                </ul>
+                
+            </div>
+            <div class="footer-column">
+                <ul>
+                    <li><b>COMPANY</b></li>
+                    <li><a href="https://www.geeksforgeeks.org/about/">About Us</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/careers/">Careers</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/privacy-policy/">Privacy Policy</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/about/contact-us/">Contact Us</a></li>
+                </ul>
+            </div>
+
+
+            <div class="footer-column">
+                <ul>
+                    <li><b>LEARN</b></li>
+                    <li><a href="https://www.geeksforgeeks.org/fundamentals-of-algorithms/">Algorithms</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/data-structures/">Data Structures</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/category/program-output/">Languages</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/articles-on-computer-science-subjects-gq/">CS Subjects</a></li>
+                    <li><a href="https://www.youtube.com/geeksforgeeksvideos/">Video Tutorials</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <ul>
+                    <li><b>PRACTICE</b></li>
+                    <li><a href="https://practice.geeksforgeeks.org/courses/">Courses</a></li>
+                    <li><a href="https://practice.geeksforgeeks.org/company-tags/">Company-wise</a></li>
+                    <li><a href="https://practice.geeksforgeeks.org/topic-tags/">Topic-wise</a></li>
+                    <li><a href="https://practice.geeksforgeeks.org/faq.php">How to begin?</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <ul>
+                    <li><b>CONTRIBUTE</b>
+                    <li><a href="https://www.geeksforgeeks.org/contribute/">Write an Article</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/write-interview-experience/">Write Interview Experience</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/internship/">Internships</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/how-to-contribute-videos-to-geeksforgeeks/">Videos</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom-div footer-bottom-social">
+    <ul class="social-ul" style="padding-left: 0px;">
+                    <li>
+                        <a class="social-link" href="https://www.facebook.com/GeeksforGeeks-316764689022/timeline/"><div class="social-img-div"></div></a>
+                        <a class="social-link" href="https://in.linkedin.com/company/geeksforgeeks"><div class="social-img-div"></div></a>
+                        <a class="social-link" href="https://play.google.com/store/apps/details?id=free.programming.programming&amp;hl=en"><div class="social-img-div"></div></a>
+                        <a class="social-link" href="https://twitter.com/geeksforgeeks"><div class="social-img-div"></div></a>
+                        <a class="social-link" href="https://www.youtube.com/geeksforgeeksvideos"><div class="social-img-div"></div></a>
+                    </li>
+                </ul>
+  </div>
+  <div class="footer-bottom-div">
+            @geeksforgeeks, <a style="color:#fff !important" href="https://creativecommons.org/licenses/by-sa/4.0/">Some rights reserved</a>
+        </div>
+
+    </div>
+</footer>
+</div><!-- #page -->
+
+<script type='text/javascript' src='https://www.geeksforgeeks.org/wp-includes/js/wp-embed.min.js?ver=4.9.8'></script>
+
+<style>
+.eventLink{
+border: 1px solid #868686;
+background-color: #e0e0e0;
+padding: 10px;
+box-shadow: none;
+display: block;
+text-align: center;
+color: #555 !important;
+font-size: 14px;
+font-weight: bold;
+}
+</style>
+
+<script type="text/javascript">
+// below changes to be added in gfg.js in future.
+// load comment button click when page scroll to it and positioned ad in mobile view.
+flag=0;jQuery(window).scroll(function(){if(jQuery('#comment').length !=0 ){var hT=jQuery('#comment').offset().top,hH=jQuery('#comment').outerHeight(),wH=jQuery(window).height(),wS=jQuery(this).scrollTop();if(wS>(hT+hH-wH-70)&&!flag){jQuery('#comment').click();flag=1}}});
+/*var temp_width=jQuery(window).width();if(temp_width<468){if(jQuery('article').length>1){jQuery(jQuery('.responsiveAd')).insertAfter('article:eq(2)');jQuery('.rectangleAd').hide()}
+else if(jQuery('#practiceLinkDiv').length>0){jQuery(jQuery('.responsiveAd')).insertAfter('#practiceLinkDiv');jQuery('.rectangleAd').css('width','')}else{jQuery('.responsiveAd').hide();jQuery('.rectangleAd').css('width','')}}
+*/
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-12148232-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<script type="text/javascript" src="//m.servedby-buysellads.com/monetization.js"></script>
+<script>
+(function(){
+    if(typeof _bsa !== 'undefined' && _bsa) {
+        _bsa.init('fancybar', 'C6ADVKE', 'placement:geeksforgeeks');
+    }
+})();
+</script>
+</body>
+</html>
+
+<!-- Dynamic page generated in 0.643 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2019-10-10 14:31:24 -->
+
+<!-- Compression = gzip -->
+<!-- super cache -->

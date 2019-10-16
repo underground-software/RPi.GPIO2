@@ -13,7 +13,8 @@ import gpiod
 
 if __name__ == '__main__':
     for chip in gpiod.ChipIter():
-        print('{} [{}] ({} lines)'.format(chip.name,
+        print('{} [{}] ({} lines)'.format(chip.name(),
                                           chip.label(),
                                           chip.num_lines()))
+        print(chip.label())
         chip.close()
