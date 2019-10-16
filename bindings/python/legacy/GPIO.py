@@ -9,6 +9,8 @@ class _State:
     chip      = None
     lines     = {}
 
+# === User Facing Data ===
+
 # Pin numbering modes
 UNKNOWN = 0
 BCM     = 1
@@ -27,12 +29,72 @@ PUD_DOWN = 2
 IN  = gpiod.LINE_REQ_DIR_IN
 OUT = gpiod.LINE_REQ_DIR_OUT
 
+# Event signal types
+NO_EDGE      = 0
+RISING_EDGE  = 1
+FALLING_EDGE = 2
+BOTH_EDGE    = 3
+
+# === Internal Data ===
+
+# Internal library state
+class _State:
+    mode      = 0
+    warnings  = True
+    debuginfo = False
+    chip      = None
+    lines     = {}
+
+# Internal libgpiod constants
+_OUTPUT = gpiod.Line.DIRECTION_OUTPUT
+_INPUT = gpiod.Line.DIRECTION_INPUT
+
+# === Helper Routines ===
 
 def Dprint(*msgargs):
     """ Print debug information for development purposes"""
     if _State.debuginfo:
         print("[DEBUG]", *msgargs)
 
+def is_all_ints(data):
+    try:
+        int(data)
+    except TypeError:
+        try:
+            [ int(value) for value in data ]
+        except (ValueError, TypeError):
+            return False
+        else:
+            return True
+    except (ValueError, TypeError):
+        return False
+    else:
+        return True
+
+def is_all_bools(data):
+    try:
+        bool(data)
+    except TypeError:
+        try:
+            [ bool(value) for value in data ]
+        except (ValueError, TypeError):
+            return False
+        else:
+            return True
+    except (ValueError, TypeError):
+        return False
+    else:
+        return True
+
+def is_iterable(data):
+    try:
+        it = iter(data)
+    except TypeError:
+        return False
+    else:
+        return True
+
+# === Interface Functions ===
 
 def setmode(mode):
     """
@@ -77,7 +139,6 @@ def setdebuginfo(value):
     """Enable or disable debug messages"""
     _State.debuginfo = bool(value)
     Dprint("debuginfo output set to", _State.debuginfo)
-
 
 
 ## Fuse these functions and refactor later
@@ -163,7 +224,7 @@ def output(channel, value):
 
    
     for chan, val in zip(channel, value):
-        if chan not in _State.lines.keys() or _State.lines[chan].direction() != gpiod.Line.DIRECTION_OUTPUT:
+        if chan not in _State.lines.keys() or _State.lines[chan].direction() != _OUTPUT:
              warn("The GPIO channel has not been set up as an OUTPUT\n\tSkipping channel ", (chan))
         else:
             try:
@@ -177,8 +238,8 @@ def input(channel):
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
     channel - either board pin number or BCM number depending on which mode is set.
     """
-    if channel not in _State.lines.keys() or (_State.lines[channel].direction() != gpiod.Line.DIRECTION_INPUT \
-            and _State.lines[channel].direction() != gpiod.Line.DIRECTION_OUTPUT):
+    if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
+            and _State.lines[channel].direction() != _OUTPUT):
         raise RuntimeError("You must setup() the GPIO channel first")
 
     return _State.lines[channel].get_value()
@@ -194,4 +255,37 @@ def getmode():
         return None
     else:
         return _State.mode
+
+   # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returbns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
+
+
+def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
+    """
+    Wait for an edge.  Returbns the channel number or None on timeout.
+    channel      - either board pin number or BCM number depending on which mode is set.
+    edge         - RISING, FALLING or BOTH
+    [bouncetime] - time allowed between calls to allow for switchbounce
+    [timeout]    - timeout in ms
+    """
+
+    if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
+        raise RuntimeError("You must setup() the GPIO channel first")
+
+    if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
+        raise ValueError("The edge must be set to RISING, FALLING or BOTH")
+
+    if bouncetime is not None  and bouncetime <= 0:
+        raise ValueError("Bouncetime must be greater than 0")
+
+    if timeout is not None  and timeout <= 0:
+        raise ValueError("Timeout must be greater than 0")
+
+# TODO 
+   # {"cleanup", (PyCFunction)py_cleanup, METH_VARARGS | METH_KEYWORDS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection\n[channel] - individual channel or list/tuple of channels to clean up.  Default - clean every channel that has been used."},
+   # {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
+   # {"remove_event_detect", py_remove_event_detect, METH_VARARGS, "Remove edge detection for a particular GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set."},
+   # {"event_detected", py_event_detected, METH_VARARGS, "Returns True if an edge has occurred on a given GPIO.  You need to enable edge detection using add_event_detect() first.\nchannel - either board pin number or BCM number depending on which mode is set."},
+   # {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\nchannel      - either board pin number or BCM number depending on which mode is set.\ncallback     - a callback function"},
+   # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
+   # {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)\nchannel - either board pin number or BCM number depending on which mode is set."},
 
