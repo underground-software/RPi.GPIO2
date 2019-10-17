@@ -9,7 +9,6 @@ class _State:
     chip      = None
     lines     = {}
 
-
 # Pin numbering modes
 UNKNOWN = 0
 BCM     = 1
@@ -80,35 +79,20 @@ def setdebuginfo(value):
     Dprint("debuginfo output set to", _State.debuginfo)
 
 
+
+## Fuse these functions and refactor later
+
 def is_all_ints(data):
-    try:
-        int(data)
-    except TypeError:
-        try:
-            [ int(value) for value in data ]
-        except (ValueError, TypeError):
-            return False
-        else:
-            return True
-    except (ValueError, TypeError):
-        return False
-    else:
-        return True
+    all([isinstance(elem,int) for elem in data]\
+        if not isinstance(data,int)\
+            else isinstance(data,int))
 
 def is_all_bools(data):
-    try:
-        bool(data)
-    except TypeError:
-        try:
-            [ bool(value) for value in data ]
-        except (ValueError, TypeError):
-            return False
-        else:
-            return True
-    except (ValueError, TypeError):
-        return False
-    else:
-        return True
+    all([isinstance(elem,bool) for elem in data]\
+        if not isinstance(data,bool)\
+            else isinstance(data,bool))
+
+## Fuse these functions and refactor later
 
 def is_iterable(data):
     try:
