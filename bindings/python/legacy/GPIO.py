@@ -29,11 +29,17 @@ PUD_DOWN = 2
 IN  = gpiod.LINE_REQ_DIR_IN
 OUT = gpiod.LINE_REQ_DIR_OUT
 
+# Request types
+FALLING_EDGE    = gpiod.LINE_REQ_EV_FALLING_EDGE
+RISING_EDGE     = gpiod.LINE_REQ_EV_RISING_EDGE
+BOTH_EDGE       = gpiod.LINE_REQ_EV_BOTH_EDGES
+AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
+
 # Event signal types
-NO_EDGE      = 0
-RISING_EDGE  = 1
-FALLING_EDGE = 2
-BOTH_EDGE    = 3
+# NO_EDGE      = 0
+# RISING_EDGE  = 1
+# FALLING_EDGE = 2
+# BOTH_EDGE    = 3
 
 # === Internal Data ===
 
@@ -128,14 +134,14 @@ def setdebuginfo(value):
 ## Fuse these functions and refactor later
 
 def is_all_ints(data):
-    all([isinstance(elem,int) for elem in data]\
+    return all([isinstance(elem,int) for elem in data])\
         if not isinstance(data,int)\
-            else isinstance(data,int))
+            else True
 
 def is_all_bools(data):
-    all([isinstance(elem,bool) for elem in data]\
+    return all([isinstance(elem,bool) for elem in data])\
         if not isinstance(data,bool)\
-            else isinstance(data,bool))
+            else True
 
 ## Fuse these functions and refactor later
 
@@ -220,7 +226,7 @@ def output(channel, value):
 def input(channel):
     """
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
-    channel - either board pin number or BCM number depending on which mode is set.
+    # channel - either board pin number or BCM number depending on which mode is set.
     """
     if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
             and _State.lines[channel].direction() != _OUTPUT):
@@ -243,7 +249,7 @@ def getmode():
    # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returbns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
 
 
-def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
+def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     """
     Wait for an edge.  Returbns the channel number or None on timeout.
     channel      - either board pin number or BCM number depending on which mode is set.
@@ -252,33 +258,44 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=None):
     [timeout]    - timeout in ms
     """
 
-    if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
-        raise RuntimeError("You must setup() the GPIO channel first")
+    # if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
+    #     raise RuntimeError("You must setup() the GPIO channel first")
+
+    # FIXME: becaus we don't need to run setup, we do need to ensure that we have the line object in the dictionary
+    if channel not in _State.lines.keys():
+        _State.lines[channel] = _State.chip.get_line(channel)
+
 
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
     if bouncetime is not None  and bouncetime <= 0:
-        raise ValueError("Bouncetime must be greater than 0")
+        raise ValueError("Bouncetime must be greater than 0") 
 
-    if timeout is not None  and timeout <= 0:
-        raise ValueError("Timeout must be greater than 0")
+    if timeout is not None  and timeout < 0:
+        raise ValueError("Timeout must be greater than or equal to 0") # error semantics differ from RPi.GPIO
 
-    # TODO
-    result = PLACEHOLDER_WAIT_FOR_EDGE(channel, edge, bouncetime, timeout)
+    if _State.lines[channel].is_used():
+        raise RuntimeError("Channel is currently in use (Device or Resource Busy)")
+   #alt    PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exist for this GPIO channel");
+     
+    _State.lines[channel].request(consumer="GPIO666", type=edge)
+
+    # Handle timeout value
+    if timeout is not None:
+        timeout_sec = int(int(timeout) / 1000)
+        timeout_nsec = (int(timeout) % 1000) * 1000
+    else:
+        timeout = 0
+
+
+    # TODO handle bouncetime
+    succ = _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec)
+    if succ:
+        return _State.lines[channel].event_read()
+    else:
+        return None
     
-    # Integrate result handling
-   # if (result == 0) {
-   #    Py_RETURN_NONE;
-   # } else if (result == -1) {
-   #    PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exist for this GPIO channel");
-   #    return NULL;
-   # } else if (result == -2) {
-   #    PyErr_SetString(PyExc_RuntimeError, "Error waiting for edge");
-   #    return NULL;
-   # } else {
-   #    return Py_BuildValue("i", channel);
-   # }
 
 # TODO 
    # {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
