@@ -241,10 +241,7 @@ def getmode():
     Returns BOARD, BCM or None
     """
 
-    if _State.mode == UNKNOWN:
-        return None
-    else:
-        return _State.mode
+    return _State.mode if _State.mode else None
 
    # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returbns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
 
