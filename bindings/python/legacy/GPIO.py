@@ -2,6 +2,7 @@ import gpiod
 from warnings import warn
 import os
 import sys
+import multiprogramming
 
 class _State:
     mode      = 0
@@ -125,7 +126,7 @@ def setmode(mode):
     Dprint("state chip has value:", _State.chip)
 
 
-def setwarnings(value):
+def setwarnings(value = True):
     """Enable or disable warning messages"""
     _State.warnings = bool(value)
     Dprint("warning output set to", _State.warnings)
@@ -253,7 +254,7 @@ def getmode():
 
 def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     """
-    Wait for an edge.  Returbns the channel number or None on timeout.
+    Wait for an edge.  Returns the channel number or None on timeout.
     channel      - either board pin number or BCM number depending on which mode is set.
     edge         - RISING, FALLING or BOTH
     [bouncetime] - time allowed between calls to allow for switchbounce
@@ -271,10 +272,10 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    if bouncetime is not None  and bouncetime <= 0:
+    if bouncetime is not None and bouncetime <= 0:
         raise ValueError("Bouncetime must be greater than 0") 
 
-    if timeout is not None  and timeout < 0:
+    if timeout is not None and timeout < 0:
         raise ValueError("Timeout must be greater than or equal to 0") # error semantics differ from RPi.GPIO
 
     if _State.lines[channel].is_used():
@@ -292,8 +293,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
 
 
     # TODO handle bouncetime
-    succ = _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec)
-    if succ:
+    if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
         return _State.lines[channel].event_read()
     else:
         return None
