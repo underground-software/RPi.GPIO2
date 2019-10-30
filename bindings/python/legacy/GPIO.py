@@ -1,6 +1,7 @@
 import gpiod
 from warnings import warn
 import os
+import sys
 
 class _State:
     mode      = 0
@@ -114,7 +115,11 @@ def setmode(mode):
     
     _State.mode = mode
     # This is hardcoded for now but that may change soon (or not)
-    _State.chip = gpiod.Chip("gpiochip0")
+    try:
+        _State.chip = gpiod.Chip("gpiochip0")
+    except PermissionError:
+        print("Script or interpreter must be run as root")
+        sys.exit()
 
     Dprint("mode set to", _State.mode)
     Dprint("state chip has value:", _State.chip)
