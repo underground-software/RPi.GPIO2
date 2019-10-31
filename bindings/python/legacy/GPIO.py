@@ -2,7 +2,7 @@ import gpiod
 from warnings import warn
 import os
 import sys
-import multiprogramming
+from multiprocessing import Process
 
 class _State:
     mode      = 0
@@ -10,6 +10,7 @@ class _State:
     debuginfo = True
     chip      = None
     lines     = {}
+    _State.threads   = {}
 
 # === User Facing Data ===
 
@@ -251,6 +252,17 @@ def getmode():
 
    # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returbns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
 
+def poll_thread(channel):
+    _State.threads[channel] = Process(target=wait_for_edge, args=(channel))
+    for i in _State.threads.keys():
+        _State.threads[i].start()
+
+
+    for i in _State.threads.keys():
+        _State.threads[i].join()
+
+def add_edge_detect():
+    
 
 def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     """
