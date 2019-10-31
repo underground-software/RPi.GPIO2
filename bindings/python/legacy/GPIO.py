@@ -3,8 +3,6 @@ from warnings import warn
 import os
 import sys
 from threading import Thread, Event
-
-
 # === User Facing Data ===
 
 # Pin numbering modes
