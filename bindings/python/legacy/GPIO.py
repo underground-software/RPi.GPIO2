@@ -281,8 +281,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     [bouncetime] - Switch bounce timeout in ms for callback
     """
 
-    # validate edge
-    if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
+    valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
+    if edge not in valid_edges:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
     if channel < 0 or channel > _State.chip.num_lines() - 1:
@@ -309,7 +309,7 @@ def add_event_callback(channel, callback):
         raise RuntimeError("gotta  enable event detect first") #FIXME
 
     if not callable(callback):
-        raise ValueError("callback not callable")
+        raise ValueError("callback not a callable object")
 
     _State.callbacks[channel].append(callback)
 
