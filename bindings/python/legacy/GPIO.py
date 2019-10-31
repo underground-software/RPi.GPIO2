@@ -144,7 +144,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     if direction == OUT and pull_up_down != PUD_OFF:
         raise ValueError("pull_up_down parameter is not valid for outputs")
     
-    if direction == IN and initial is not None:
+    if direction == IN and initial:
         raise ValueError("initial parameter is not valid for inputs")
 
     if pull_up_down != PUD_OFF and pull_up_down != PUD_UP and pull_up_down != PUD_DOWN:
@@ -235,10 +235,10 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    if bouncetime is not None and bouncetime <= 0:
+    if bouncetime and bouncetime <= 0:
         raise ValueError("Bouncetime must be greater than 0") 
 
-    if timeout is not None and timeout < 0:
+    if timeout and timeout < 0:
         raise ValueError("Timeout must be greater than or equal to 0") # error semantics differ from RPi.GPIO
 
     if _State.lines[channel].is_used() and not channel in _State.lines.keys():
@@ -249,7 +249,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
         _State.lines[channel].request(consumer="GPIO666", type=edge)
 
     # Handle timeout value
-    if timeout is not None:
+    if timeout:
         timeout_sec = int(int(timeout) / 1000)
         timeout_nsec = (int(timeout) % 1000) * 1000
     else:
@@ -266,7 +266,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
 def poll_thread(channel, edge, callback, bouncetime):
 
     while not _State.killsigs[channel].is_set():
-        if wait_for_edge(channel, edge, bouncetime, 1000) is not None:
+        if wait_for_edge(channel, edge, bouncetime, 1000):
             print(len(_State.callbacks[channel]))
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
