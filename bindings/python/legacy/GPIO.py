@@ -285,18 +285,17 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    # validate pin number
-    # TODO
+    if channel < 0 or channel > _State.chip.num_lines() - 1:
+        raise ValueError("Invalid pin number")
 
     _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
     _State.callbacks[channel] = []
-    if callback is not None:
+
+    if callback:
         _State.callbacks[channel].append(callback)
 
     _State.killsigs[channel] = Event()
     _State.threads[channel].start()
-
-    return 0 # idk FIXME
 
 
 def add_event_callback(channel, callback):
