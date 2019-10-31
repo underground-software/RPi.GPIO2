@@ -2,14 +2,8 @@ import gpiod
 from warnings import warn
 import os
 import sys
-import multiprogramming
+from threading import Thread, Event
 
-class _State:
-    mode      = 0
-    warnings  = True
-    debuginfo = True
-    chip      = None
-    lines     = {}
 
 # === User Facing Data ===
 
@@ -49,9 +43,13 @@ AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 class _State:
     mode      = 0
     warnings  = True
-    debuginfo = False
+    debuginfo = True
     chip      = None
+    event_ls  = []
     lines     = {}
+    threads   = {}
+    callbacks = {}
+    killsigs  = {}
 
 # Internal libgpiod constants
 _OUTPUT = gpiod.Line.DIRECTION_OUTPUT
@@ -249,8 +247,6 @@ def getmode():
 
     return _State.mode if _State.mode else None
 
-   # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returbns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
-
 
 def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     """
@@ -278,11 +274,12 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if timeout is not None and timeout < 0:
         raise ValueError("Timeout must be greater than or equal to 0") # error semantics differ from RPi.GPIO
 
-    if _State.lines[channel].is_used():
+    if _State.lines[channel].is_used() and not channel in _State.lines.keys():
         raise RuntimeError("Channel is currently in use (Device or Resource Busy)")
    #alt    PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exist for this GPIO channel");
      
-    _State.lines[channel].request(consumer="GPIO666", type=edge)
+    if not _State.lines[channel].is_used():
+        _State.lines[channel].request(consumer="GPIO666", type=edge)
 
     # Handle timeout value
     if timeout is not None:
@@ -294,19 +291,105 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
 
     # TODO handle bouncetime
     if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
+        _State.event_ls.append(channel)
         return _State.lines[channel].event_read()
     else:
         return None
+
+def poll_thread(channel, edge, callback, bouncetime):
+
+    while not _State.killsigs[channel].is_set():
+        if wait_for_edge(channel, edge, bouncetime, 1000) is not None:
+            print(len(_State.callbacks[channel]))
+            for callback_func in _State.callbacks[channel]:
+                callback_func(channel)
+
+
+def add_event_detect(channel, edge, callback=None, bouncetime=None):
+    """
+    Enable edge detection events for a particular GPIO channel.
+    channel      - either board pin number or BCM number depending on which mode is set.
+    edge         - RISING, FALLING or BOTH
+    [callback]   - A callback function for the event (optional)
+    [bouncetime] - Switch bounce timeout in ms for callback
+    """
+
+    # validate edge
+    if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
+        raise ValueError("The edge must be set to RISING, FALLING or BOTH")
+
+    # validate pin number
+    # TODO
+
+    _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
+    _State.callbacks[channel] = []
+    if callback is not None:
+        _State.callbacks[channel].append(callback)
+
+    _State.killsigs[channel] = Event()
+    _State.threads[channel].start()
+
+    return 0 # idk FIXME
+
+
+def add_event_callback(channel, callback):
+    """
+    Add a callback for an event already defined using add_event_detect()
+    channel      - either board pin number or BCM number depending on which mode is set.
+    callback     - a callback function"
+    """
     
+    if channel not in _State.threads.keys():
+        raise RuntimeError("gotta  enable event detect first") #FIXME
 
-# TODO 
-   # {"add_event_detect", (PyCFunction)py_add_event_detect, METH_VARARGS | METH_KEYWORDS, "Enable edge detection events for a particular GPIO channel.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[callback]   - A callback function for the event (optional)\n[bouncetime] - Switch bounce timeout in ms for callback"},
-   # {"remove_event_detect", py_remove_event_detect, METH_VARARGS, "Remove edge detection for a particular GPIO channel\nchannel - either board pin number or BCM number depending on which mode is set."},
-   # {"event_detected", py_event_detected, METH_VARARGS, "Returns True if an edge has occurred on a given GPIO.  You need to enable edge detection using add_event_detect() first.\nchannel - either board pin number or BCM number depending on which mode is set."},
+    if not callable(callback):
+        raise ValueError("callback not callable")
 
-   # {"add_event_callback", (PyCFunction)py_add_event_callback, METH_VARARGS | METH_KEYWORDS, "Add a callback for an event already defined using add_event_detect()\nchannel      - either board pin number or BCM number depending on which mode is set.\ncallback     - a callback function"},
-   # {"wait_for_edge", (PyCFunction)py_wait_for_edge, METH_VARARGS | METH_KEYWORDS, "Wait for an edge.  Returns the channel number or None on timeout.\nchannel      - either board pin number or BCM number depending on which mode is set.\nedge         - RISING, FALLING or BOTH\n[bouncetime] - time allowed between calls to allow for switchbounce\n[timeout]    - timeout in ms"},
+    _State.callbacks[channel].append(callback)
 
-# Implementation specific
-   # {"gpio_function", py_gpio_function, METH_VARARGS, "Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)\nchannel - either board pin number or BCM number depending on which mode is set."},
-   # {"cleanup", (PyCFunction)py_cleanup, METH_VARARGS | METH_KEYWORDS, "Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection\n[channel] - individual channel or list/tuple of channels to clean up.  Default - clean every channel that has been used."},
+
+def remove_event_detect(channel):
+    """
+    Remove edge detection for a particular GPIO channel
+    channel - either board pin number or BCM number depending on which mode is set.
+    """
+    if channel in _State.threads.keys():
+        _State.killsigs[channel].set()
+        _State.threads[channel].join()
+        del _State.threads[channel]
+        del _State.killsigs[channel]
+        del _State.callbacks[channel]
+    else:
+        raise ValueError("event detection not setup on channel {}".format(channel))
+
+
+def event_detected(channel):
+    """
+    Returns True if an edge has occurred on a given GPIO.  You need to enable edge detection using add_event_detect() first.
+    channel - either board pin number or BCM number depending on which mode is set."
+    """
+    if channel in _State.event_ls:
+        _State.event_ls.remove(channel)
+        return True
+    else:
+        return False
+
+
+# TODO more functionality
+def cleanup():
+    """
+    Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection
+    [channel] - individual channel or list/tuple of channels to clean up.
+    Default - clean every channel that has been used.
+    """
+    for channel in _State.killsigs:
+        _State.killsigs[channel].set()
+
+# TODO make table
+def gpio_function(channel):
+    """
+    Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
+    channel - either board pin number or BCM number depending on which mode is set.
+    """
+
+    return  "TODO"
