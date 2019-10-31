@@ -29,12 +29,6 @@ RISING_EDGE     = gpiod.LINE_REQ_EV_RISING_EDGE
 BOTH_EDGE       = gpiod.LINE_REQ_EV_BOTH_EDGES
 AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
-# Event signal types
-# NO_EDGE      = 0
-# RISING_EDGE  = 1
-# FALLING_EDGE = 2
-# BOTH_EDGE    = 3
-
 # === Internal Data ===
 
 # Internal library state
@@ -60,7 +54,7 @@ def Dprint(*msgargs):
     if _State.debuginfo:
         print("[DEBUG]", *msgargs)
 
-## Fuse these functions and refactor later
+## Fuse these functions and refactor later *?*
 
 def is_all_ints(data):
     return all([isinstance(elem,int) for elem in data]) \
@@ -71,8 +65,6 @@ def is_all_bools(data):
     return all([isinstance(elem,bool) for elem in data]) \
         if not isinstance(data,bool)\
             else True
-
-## Fuse these functions and refactor later
 
 def is_iterable(data):
     try:
@@ -131,29 +123,6 @@ def setdebuginfo(value):
     """Enable or disable debug messages"""
     _State.debuginfo = bool(value)
     Dprint("debuginfo output set to", _State.debuginfo)
-
-
-## Fuse these functions and refactor later
-
-def is_all_ints(data):
-    return all([isinstance(elem,int) for elem in data])\
-        if not isinstance(data,int)\
-            else True
-
-def is_all_bools(data):
-    return all([isinstance(elem,bool) for elem in data])\
-        if not isinstance(data,bool)\
-            else True
-
-## Fuse these functions and refactor later
-
-def is_iterable(data):
-    try:
-        it = iter(data)
-    except TypeError:
-        return False
-    else:
-        return True
 
 def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     """
