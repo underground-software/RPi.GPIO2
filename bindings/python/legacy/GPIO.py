@@ -219,7 +219,6 @@ def getmode():
     Get numbering mode used for channel numbers.
     Returns BOARD, BCM or None
     """
-
     return _State.mode if _State.mode else None
 
 
@@ -238,7 +237,6 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     # FIXME: becaus we don't need to run setup, we do need to ensure that we have the line object in the dictionary
     if channel not in _State.lines.keys():
         _State.lines[channel] = _State.chip.get_line(channel)
-
 
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
@@ -359,11 +357,19 @@ def cleanup():
     for channel in _State.killsigs:
         _State.killsigs[channel].set()
 
+def get_gpio_number(channel):
+    if _State.mode == BOARD:
+        if pin_to_gpio_rev3[channel] == -1:
+            raise RuntimeError("The channel sent is invalid on a Raspberry Pi")
+        else:
+            return pin_to_gpio_rev3[channel]
+
 # TODO make table
 def gpio_function(channel):
     """
     Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
     channel - either board pin number or BCM number depending on which mode is set.
     """
+    get_gpio_number(channel)
 
     return  "TODO"
