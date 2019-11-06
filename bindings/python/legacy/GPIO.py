@@ -166,8 +166,8 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
         _State.lines[pin] = _State.chip.get_line(pin)
         try:
             _State.lines[pin].request(consumer=_State.chip.name(), type=direction)  
-            if initial:
-                    _State.lines[pin].set_value(bool(initial))
+            if initial is not None:
+                    _State.lines[pin].set_value(initial)
         except OSError:
             warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
 

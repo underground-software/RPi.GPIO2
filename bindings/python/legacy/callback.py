@@ -10,7 +10,6 @@ def callback_one(pin):
 def callback_two(pin):
     print("CALLBACK FUNCTION NUMBER TWO with lights")
     GPIO.output(18, 1)
-    # time.sleep(1)
     print("light callback over")
     GPIO.output(18, 0)
 
@@ -21,9 +20,12 @@ GPIO.setmode(GPIO.BCM)
 # print("pass1")
 # GPIO.wait_for_edge(testpin, GPIO.BOTH_EDGE, 2000, 66660)
 # print("pass2")
+
 GPIO.add_event_detect(testpin, GPIO.BOTH_EDGE, callback_one, 666)
 
-GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF, 0)
+GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF)
+
+# GPIO.output(18, 0)
 
 print("ADD CALLBACK ONE")
 
