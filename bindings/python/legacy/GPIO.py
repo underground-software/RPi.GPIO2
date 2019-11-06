@@ -166,8 +166,13 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
         _State.lines[pin] = _State.chip.get_line(pin)
         try:
             _State.lines[pin].request(consumer=_State.chip.name(), type=direction)  
+            if initial:
+                    _State.lines[pin].set_value(bool(initial))
         except OSError:
             warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
+
+    # TODO default initial value
+
         
         
 def output(channel, value):
@@ -273,7 +278,6 @@ def poll_thread(channel, edge, callback, bouncetime):
 
     while not _State.killsigs[channel].is_set():
         if wait_for_edge(channel, edge, bouncetime, 1000):
-            print(len(_State.callbacks[channel]))
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
