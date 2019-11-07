@@ -102,7 +102,6 @@ def setmode(mode):
     if mode == BOARD:
         raise ValueError("We currently do not suppprt BOARD mode")
     
-    # TODO: we should discuss this
     if mode == BCM:
         gpiochips = []
         for root, dirs, files in os.walk('/dev/'):
@@ -129,10 +128,12 @@ def setwarnings(value = True):
     _State.warnings = bool(value)
     Dprint("warning output set to", _State.warnings)
 
+
 def setdebuginfo(value):
     """Enable or disable debug messages"""
     _State.debuginfo = bool(value)
     Dprint("debuginfo output set to", _State.debuginfo)
+
 
 def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     """
@@ -173,9 +174,6 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
         except OSError:
             warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
 
-    # TODO default initial value
-
-        
         
 def output(channel, value):
     """
@@ -208,12 +206,13 @@ def output(channel, value):
             except PermissionError:
                 warn("Unable to set value of channel {}, did you forget to run setup()? Or did setup() fail?".format(chan))
 
-# This function needs to be tested
+
 def input(channel):
     """
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
     # channel - either board pin number or BCM number depending on which mode is set.
     """
+
     if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
             and _State.lines[channel].direction() != _OUTPUT):
         raise RuntimeError("You must setup() the GPIO channel first")
@@ -226,6 +225,7 @@ def getmode():
     Get numbering mode used for channel numbers.
     Returns BOARD, BCM or None
     """
+
     return _State.mode if _State.mode else None
 
 
