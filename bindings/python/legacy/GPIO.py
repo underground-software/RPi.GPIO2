@@ -281,6 +281,10 @@ def poll_thread(channel, edge, callback, bouncetime):
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
+def validate_pin_or_die():
+    if channel < 0 or channel > _State.chip.num_lines() - 1:
+        raise ValueError("Invalid pin number")
+
 
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
     """
@@ -289,14 +293,21 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     edge         - RISING, FALLING or BOTH
     [callback]   - A callback function for the event (optional)
     [bouncetime] - Switch bounce timeout in ms for callback
+
+    {compat} we do not require that the channel be setup as an input
     """
 
     valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
     if edge not in valid_edges:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    if channel < 0 or channel > _State.chip.num_lines() - 1:
-        raise ValueError("Invalid pin number")
+    if callback and if not callable(callback):
+        raise TypeError("Parameter must be callable")
+
+    if bouncetime and if bouncetime <= 0:
+        raise ValueError ("Bouncetime must be greater than 0")
+
+    validate_pin_or_die()
 
     _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
     _State.callbacks[channel] = []
@@ -313,13 +324,16 @@ def add_event_callback(channel, callback):
     Add a callback for an event already defined using add_event_detect()
     channel      - either board pin number or BCM number depending on which mode is set.
     callback     - a callback function"
+
+    {compat} we do not require that the channel be setup as an input
     """
-    
+
     if channel not in _State.threads.keys():
-        raise RuntimeError("gotta  enable event detect first") #FIXME
+        raise RuntimeError("Add event detection using add_event_detect first before adding a callback")
 
     if not callable(callback):
-        raise ValueError("callback not a callable object")
+        raise TypeError("Parameter must be callable")
+    
 
     _State.callbacks[channel].append(callback)
 
@@ -329,6 +343,7 @@ def remove_event_detect(channel):
     Remove edge detection for a particular GPIO channel
     channel - either board pin number or BCM number depending on which mode is set.
     """
+
     if channel in _State.threads.keys():
         _State.killsigs[channel].set()
         _State.threads[channel].join()
@@ -344,6 +359,7 @@ def event_detected(channel):
     Returns True if an edge has occurred on a given GPIO.  You need to enable edge detection using add_event_detect() first.
     channel - either board pin number or BCM number depending on which mode is set."
     """
+
     if channel in _State.event_ls:
         _State.event_ls.remove(channel)
         return True
@@ -351,29 +367,37 @@ def event_detected(channel):
         return False
 
 
-# TODO more functionality
 def cleanup():
     """
     Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection
     [channel] - individual channel or list/tuple of channels to clean up.
     Default - clean every channel that has been used.
+
+    {compat} Cleanup is handled by libgpiod and the kernel
     """
+
     for channel in _State.killsigs:
         _State.killsigs[channel].set()
+
 
 def get_gpio_number(channel):
     if _State.mode == BOARD:
         if pin_to_gpio_rev3[channel] == -1:
-            raise RuntimeError("The channel sent is invalid on a Raspberry Pi")
+            raise ValueError("The channel sent is invalid on a Raspberry Pi")
         else:
             return pin_to_gpio_rev3[channel]
+    else:
+        validate_pin_or_die() 
+        return channel
 
-# TODO make table
+
 def gpio_function(channel):
     """
     Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
     channel - either board pin number or BCM number depending on which mode is set.
-    """
-    get_gpio_number(channel)
 
-    return  "TODO"
+    {compat} This is a stateless function that will return a constant value for every pin
+    """
+
+    # error handling is done in the called function
+    return get_gpio_number(channel)
