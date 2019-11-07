@@ -2,6 +2,7 @@ import gpiod
 from warnings import warn
 import os
 import sys
+import time
 from threading import Thread, Event
 # === User Facing Data ===
 
@@ -41,15 +42,16 @@ AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
 # Internal library state
 class _State:
-    mode      = 0
-    warnings  = True
-    debuginfo = True
-    chip      = None
-    event_ls  = []
-    lines     = {}
-    threads   = {}
-    callbacks = {}
-    killsigs  = {}
+    mode       = 0
+    warnings   = True
+    debuginfo  = True
+    chip       = None
+    event_ls   = []
+    lines      = {}
+    threads    = {}
+    callbacks  = {}
+    killsigs   = {}
+    timestamps = {}
 
 # Internal libgpiod constants
 _OUTPUT = gpiod.Line.DIRECTION_OUTPUT
@@ -234,6 +236,8 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     edge         - RISING, FALLING or BOTH
     [bouncetime] - time allowed between calls to allow for switchbounce
     [timeout]    - timeout in ms
+
+    {compat} RPI.GPIO's docstring does not specify the units of bouncetime, but the authors of this library deduce that it must be microseconds
     """
 
     # if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
@@ -266,11 +270,25 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     else:
         timeout = 0
 
-
     # TODO handle bouncetime
     if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
+        # We only care about bouncetime if it is explicitly speficied in the call to this function or if
+        # this is not the first call to wait_for_edge on the specified pin
+        if bouncetime and channel in _State.timestamps.keys():
+            while 1:
+                if time.time() - _State.timestamps[channel] > bouncetime:
+                    break
+        _State.timestamps[channel] = time.time()
         _State.event_ls.append(channel)
-        return _State.lines[channel].event_read()
+        event = _State.lines[channel].event_read()
+        # clear buffer
+        # while 1:
+            # print(_State.lines[channel].event_read())
+            # pass
+        eventfd = _State.lines[channel].event_get_fd()
+        os.lseek(eventfd,0,2)
+        print("HELLO")
+        return event
     else:
         return None
 
@@ -281,7 +299,7 @@ def poll_thread(channel, edge, callback, bouncetime):
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
-def validate_pin_or_die():
+def validate_pin_or_die(channel):
     if channel < 0 or channel > _State.chip.num_lines() - 1:
         raise ValueError("Invalid pin number")
 
@@ -294,20 +312,21 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     [callback]   - A callback function for the event (optional)
     [bouncetime] - Switch bounce timeout in ms for callback
 
-    {compat} we do not require that the channel be setup as an input
+    {compat} we do not require that the channel be setup as an input as a prerequiste to running this function,
+    however the initial value on the channel is undefined
     """
 
     valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
     if edge not in valid_edges:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    if callback and if not callable(callback):
+    if callback and not callable(callback):
         raise TypeError("Parameter must be callable")
 
-    if bouncetime and if bouncetime <= 0:
+    if bouncetime and bouncetime <= 0:
         raise ValueError ("Bouncetime must be greater than 0")
 
-    validate_pin_or_die()
+    validate_pin_or_die(channel)
 
     _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
     _State.callbacks[channel] = []
@@ -387,7 +406,7 @@ def get_gpio_number(channel):
         else:
             return pin_to_gpio_rev3[channel]
     else:
-        validate_pin_or_die() 
+        validate_pin_or_die(channel) 
         return channel
 
 

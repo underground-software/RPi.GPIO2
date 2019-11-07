@@ -21,9 +21,8 @@ GPIO.setmode(GPIO.BCM)
 # GPIO.wait_for_edge(testpin, GPIO.BOTH_EDGE, 2000, 66660)
 # print("pass2")
 
-GPIO.add_event_detect(testpin, GPIO.BOTH_EDGE, callback_one, 666)
-
-GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF)
+GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF, 0)
+GPIO.add_event_detect(testpin, GPIO.BOTH_EDGE, callback_one, 1)
 
 # GPIO.output(18, 0)
 
