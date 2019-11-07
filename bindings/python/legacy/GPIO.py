@@ -127,10 +127,12 @@ def setwarnings(value = True):
     _State.warnings = bool(value)
     Dprint("warning output set to", _State.warnings)
 
+
 def setdebuginfo(value):
     """Enable or disable debug messages"""
     _State.debuginfo = bool(value)
     Dprint("debuginfo output set to", _State.debuginfo)
+
 
 def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     """
@@ -171,9 +173,6 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
         except OSError:
             warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
 
-    # TODO default initial value
-
-        
         
 def output(channel, value):
     """
@@ -206,12 +205,13 @@ def output(channel, value):
             except PermissionError:
                 warn("Unable to set value of channel {}, did you forget to run setup()? Or did setup() fail?".format(chan))
 
-# This function needs to be tested
+
 def input(channel):
     """
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
     # channel - either board pin number or BCM number depending on which mode is set.
     """
+
     if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
             and _State.lines[channel].direction() != _OUTPUT):
         raise RuntimeError("You must setup() the GPIO channel first")
@@ -224,6 +224,7 @@ def getmode():
     Get numbering mode used for channel numbers.
     Returns BOARD, BCM or None
     """
+
     return _State.mode if _State.mode else None
 
 
@@ -235,13 +236,10 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     [bouncetime] - time allowed between calls to allow for switchbounce
     [timeout]    - timeout in ms
 
-    {compat} RPI.GPIO's docstring does not specify the units of bouncetime, but the authors of this library deduce that it must be microseconds
+    {compat} bouncetime units are in seconds
     """
 
-    # if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
-    #     raise RuntimeError("You must setup() the GPIO channel first")
-
-    # FIXME: becaus we don't need to run setup, we do need to ensure that we have the line object in the dictionary
+    # Running this function before setup is allowed but the initial pin value is undefined
     if channel not in _State.lines.keys():
         _State.lines[channel] = _State.chip.get_line(channel)
 
@@ -261,31 +259,26 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if not _State.lines[channel].is_used():
         _State.lines[channel].request(consumer="GPIO666", type=edge)
 
-    # Handle timeout value
     if timeout:
         timeout_sec = int(int(timeout) / 1000)
         timeout_nsec = (int(timeout) % 1000) * 1000
     else:
         timeout = 0
 
-    # TODO handle bouncetime
     if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
         # We only care about bouncetime if it is explicitly speficied in the call to this function or if
         # this is not the first call to wait_for_edge on the specified pin
         if bouncetime and channel in _State.timestamps.keys():
             while 1:
                 if time.time() - _State.timestamps[channel] > bouncetime:
-                    break
+                    break       # wait for $bouncetime to elapse before continuing
         _State.timestamps[channel] = time.time()
         _State.event_ls.append(channel)
         event = _State.lines[channel].event_read()
-        # clear buffer
-        # while 1:
-            # print(_State.lines[channel].event_read())
-            # pass
+
+        # A hack to clear the event buffer by reading a bunch of bytes from the file representing the GPIO line
         eventfd = _State.lines[channel].event_get_fd()
-        os.lseek(eventfd,0,2)
-        print("HELLO")
+        os.read(eventfd, 10000)
         return event
     else:
         return None
