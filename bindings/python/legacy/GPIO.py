@@ -4,6 +4,18 @@ import os
 import sys
 import time
 from threading import Thread, Event
+
+"""
+ _            _       
+| |_ ___   __| | ___  
+| __/ _ \ / _` |/ _ \ 
+| || (_) | (_| | (_) |
+ \__\___/ \__,_|\___/ 
+
+ BIG TODO FIXME TODO FIXME implement BOARD MODE
+"""
+
+
 # === User Facing Data ===
 
 
