@@ -237,13 +237,10 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     [bouncetime] - time allowed between calls to allow for switchbounce
     [timeout]    - timeout in ms
 
-    {compat} RPI.GPIO's docstring does not specify the units of bouncetime, but the authors of this library deduce that it must be microseconds
+    {compat} bouncetime units are in seconds
     """
 
-    # if channel not in _State.lines.keys() or _State.lines[channel].direction() != _INPUT:
-    #     raise RuntimeError("You must setup() the GPIO channel first")
-
-    # FIXME: becaus we don't need to run setup, we do need to ensure that we have the line object in the dictionary
+    # Running this function before setup is allowed but the initial pin value is undefined
     if channel not in _State.lines.keys():
         _State.lines[channel] = _State.chip.get_line(channel)
 
@@ -263,31 +260,26 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if not _State.lines[channel].is_used():
         _State.lines[channel].request(consumer="GPIO666", type=edge)
 
-    # Handle timeout value
     if timeout:
         timeout_sec = int(int(timeout) / 1000)
         timeout_nsec = (int(timeout) % 1000) * 1000
     else:
         timeout = 0
 
-    # TODO handle bouncetime
     if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
         # We only care about bouncetime if it is explicitly speficied in the call to this function or if
         # this is not the first call to wait_for_edge on the specified pin
         if bouncetime and channel in _State.timestamps.keys():
             while 1:
                 if time.time() - _State.timestamps[channel] > bouncetime:
-                    break
+                    break       # wait for $bouncetime to elapse before continuing
         _State.timestamps[channel] = time.time()
         _State.event_ls.append(channel)
         event = _State.lines[channel].event_read()
-        # clear buffer
-        # while 1:
-            # print(_State.lines[channel].event_read())
-            # pass
+
+        # A hack to clear the event buffer by reading a bunch of bytes from the file representing the GPIO line
         eventfd = _State.lines[channel].event_get_fd()
-        os.lseek(eventfd,0,2)
-        print("HELLO")
+        os.read(eventfd, 10000)
         return event
     else:
         return None
