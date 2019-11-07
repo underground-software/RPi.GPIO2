@@ -100,7 +100,6 @@ def setmode(mode):
     if mode == BOARD:
         raise ValueError("We currently do not suppprt BOARD mode")
     
-    # TODO: we should discuss this
     if mode == BCM:
         gpiochips = []
         for root, dirs, files in os.walk('/dev/'):
@@ -120,7 +119,6 @@ def setmode(mode):
 
     Dprint("mode set to", _State.mode)
     Dprint("state chip has value:", _State.chip)
-
 
 def setwarnings(value = True):
     """Enable or disable warning messages"""
@@ -281,7 +279,7 @@ def poll_thread(channel, edge, callback, bouncetime):
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
-def validate_pin_or_die():
+def validate_pin_or_die(channel):
     if channel < 0 or channel > _State.chip.num_lines() - 1:
         raise ValueError("Invalid pin number")
 
