@@ -13,6 +13,8 @@ from threading import Thread, Event
 
  # BIG TODO FIXME TODO FIXME implement BOARD MODE
 
+ # Docstrings not appearing properly when using help(GPIO)
+
 # === User Facing Data ===
 
 
@@ -51,7 +53,7 @@ AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
 # Internal library state
 class _State:
-    mode       = 0
+    mode       = UNKNOWN
     warnings   = True
     debuginfo  = True
     chip       = None
@@ -76,6 +78,30 @@ def Dprint(*msgargs):
 # Mess with the internal state for development or recreational purposes
 def State_Access():
     return _State
+
+# Reset internal state to default
+def Reset():
+
+    # Kill all running threads
+    cleanup()
+
+    # Release any held lines
+    for line in _State.lines:
+        line.release()
+
+    # Reset _State to default values
+    _State.mode       = UNKNOWN
+    _State.warnings   = True
+    _State.debuginfo  = True
+    _State.chip       = None
+    _State.event_ls   = []
+    _State.lines      = {}
+    _State.threads    = {}
+    _State.callbacks  = {}
+    _State.killsigs   = {}
+    _State.timestamps = {}
+
+    # Anything else?
 
 ## Fuse these functions and refactor later *?*
 
