@@ -5,16 +5,13 @@ import sys
 import time
 from threading import Thread, Event
 
-"""
- _            _       
-| |_ ___   __| | ___  
-| __/ _ \ / _` |/ _ \ 
-| || (_) | (_| | (_) |
- \__\___/ \__,_|\___/ 
+ # _            _       
+# | |_ ___   __| | ___  
+# | __/ _ \ / _` |/ _ \ 
+# | || (_) | (_| | (_) |
+ # \__\___/ \__,_|\___/ 
 
- BIG TODO FIXME TODO FIXME implement BOARD MODE
-"""
-
+ # BIG TODO FIXME TODO FIXME implement BOARD MODE
 
 # === User Facing Data ===
 
@@ -79,11 +76,19 @@ def Dprint(*msgargs):
 ## Fuse these functions and refactor later *?*
 
 def is_all_ints(data):
+    if not is_iterable(data):
+            data = [data]
+    if len(data) < 1:
+        return False
     return all([isinstance(elem,int) for elem in data]) \
         if not isinstance(data,int)\
             else True
 
 def is_all_bools(data):
+    if not is_iterable(data):
+            data = [data]
+    if len(data) < 1:
+        return False
     return all([isinstance(elem,bool) for elem in data]) \
         if not isinstance(data,bool)\
             else True
