@@ -132,7 +132,6 @@ def is_iterable(data):
         return True
 
 def channel_fix_and_validate_bcm(channel):
-    chip_init_if_needed()
     if channel < 0 or channel > _State.chip.num_lines() - 1:
         raise ValueError("The channel sent is invalid on a Raspberry Pi")
     else:
@@ -150,6 +149,7 @@ def channel_fix_and_validate_board(channel):
         return channel
 
 def channel_fix_and_validate(channel_raw):
+    chip_init_if_needed()
 
     # This function is only defined over three mode settings
     # It should be invariant that mode will contain one of these three values
@@ -252,8 +252,6 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     if not is_all_ints(channel):
         raise ValueError("Channel must be an integer or list/tuple of integers")
 
-    chip_init_if_needed()
-
     # Direction must be valid
     if direction != IN and direction != OUT:
         raise ValueError("An invalid direction was passed to setup()")
@@ -282,6 +280,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
                     _State.lines[pin].set_value(initial)
         except OSError:
             warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
+            del _State.lines[pin]
 
         
 def output(channel, value):
@@ -461,11 +460,7 @@ def remove_event_detect(channel):
     """
 
     if channel in _State.threads.keys():
-        _State.killsigs[channel].set()
-        _State.threads[channel].join()
-        del _State.threads[channel]
-        del _State.killsigs[channel]
-        del _State.callbacks[channel]
+        cleanup_poll_thread(channel)
     else:
         raise ValueError("event detection not setup on channel {}".format(channel))
 
@@ -482,6 +477,17 @@ def event_detected(channel):
     else:
         return False
 
+def cleanup_poll_thread(channel):
+    _State.killsigs[channel].set()
+    _State.threads[channel].join()
+    del _State.threads[channel]
+    del _State.killsigs[channel]
+    del _State.callbacks[channel]
+
+def cleanup_all_poll_threads():
+    for channel in _State.killsigs:
+        kill_poll_thread(channel)
+        
 
 def cleanup():
     """
@@ -491,10 +497,7 @@ def cleanup():
 
     {compat} Cleanup is handled by libgpiod and the kernel, but we use this opportunity to kill any running callback poll threads
     """
-
-    for channel in _State.killsigs:
-        _State.killsigs[channel].set()
-
+    cleanup_all_poll_threads()
     chip_close_if_open()
 
 

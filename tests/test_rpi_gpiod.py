@@ -74,7 +74,7 @@ def test_validate_pin_or_die():
     pass    
 
 
-def test_set_mode():
+def test_setmode():
     GPIO.Reset()
 
     with pytest.raises(ValueError):
@@ -151,11 +151,12 @@ def test_setup():
         GPIO.setup(34, GPIO.IN, -666)
     assert "Invalid value for pull_up_down" in str(e.value)
 
-    GPIO.setup(34, GPIO.IN, GPIO.PUD_UP)
+    # This knocks out wifi
+    # GPIO.setup(34, GPIO.IN, GPIO.PUD_UP)
 
-    with pytest.warns(Warning) as w:
-        GPIO.setup([32,33,34], GPIO.OUT)
-    assert "already in use" in str(w[0].message)
+    # with pytest.warns(Warning) as w:
+    #     GPIO.setup([32,33,34], GPIO.OUT)
+    # assert "already in use" in str(w[0].message)
 
     with pytest.raises(ValueError) as e:
         GPIO.setup(2, GPIO.IN, GPIO.PUD_OFF, 1)
