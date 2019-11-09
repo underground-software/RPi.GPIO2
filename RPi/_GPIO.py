@@ -14,6 +14,8 @@ from threading import Thread, Event
  # BIG TODO FIXME TODO FIXME implement BOARD MODE
 
  # Docstrings not appearing properly when using help(GPIO)
+ 
+ # Pull-up/Pull-down resistors??? How to handle
 
 # === User Facing Data ===
 
@@ -64,6 +66,7 @@ class _State:
     killsigs   = {}
     timestamps = {}
 
+
 # Internal libgpiod constants
 _OUTPUT = gpiod.Line.DIRECTION_OUTPUT
 _INPUT = gpiod.Line.DIRECTION_INPUT
@@ -83,11 +86,8 @@ def State_Access():
 def Reset():
 
     # Kill all running threads
+    # Close chip object fd and release  any held lines
     cleanup()
-
-    # Release any held lines
-    for line in _State.lines:
-        line.release()
 
     # Reset _State to default values
     _State.mode       = UNKNOWN
@@ -131,6 +131,78 @@ def is_iterable(data):
     else:
         return True
 
+def channel_fix_and_validate_bcm(channel):
+    chip_init_if_needed()
+    if channel < 0 or channel > _State.chip.num_lines() - 1:
+        raise ValueError("The channel sent is invalid on a Raspberry Pi")
+    else:
+        return channel
+
+def channel_fix_and_validate_board(channel):
+    if channel < 1 or channel > len(pin_to_gpio_rev3) - 1:
+        raise ValueError("The channel sent is invalid on a Raspberry Pi")
+
+    # Use lookup table from RPi.GPIO
+    channel = pin_to_gpio_rev3[channel]
+    if channel == -1:
+        raise ValueError("The channel sent is invalid on a Raspberry Pi")
+    else:
+        return channel
+
+def channel_fix_and_validate(channel_raw):
+
+    # This function is only defined over three mode settings
+    # It should be invariant that mode will contain one of these three values
+    # Other values of mode are undefined
+
+    if _State.mode == UNKNOWN:
+        raise RuntimeError("Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)")
+    elif _State.mode == BCM:
+        return channel_fix_and_validate_bcm(channel_raw)
+    elif _State.mode == BOARD:
+        return channel_fix_and_validate_board(channel_raw)
+    
+
+def validate_gpio_dev_exists():
+    gpiochips = []
+    for root, dirs, files in os.walk('/dev/'):
+        for filename in files:
+            if filename.find('gpio') > -1:
+                gpiochips.append(filename)
+    if not gpiochips:
+        raise ValueError("No compatible chips found")
+
+def chip_init():
+    # Validate the existence of a gpio character device
+    validate_gpio_dev_exists()
+
+    # This is hardcoded for now but that may change soon (or not)
+    try:
+        _State.chip = gpiod.Chip("gpiochip0")
+    except PermissionError:
+        print("Script or interpreter must be run as root")
+        sys.exit()
+    Dprint("state chip has value:", _State.chip)
+
+def chip_close():
+    _State.chip.close()
+    _State.chip = None
+
+def chip_init_if_needed():
+    if _State.chip is None:
+        chip_init()
+        Dprint("Chip object init() called")
+    else:
+        Dprint("NO-OP call to Chip object init()")
+
+def chip_close_if_open():
+    if _State.chip is not None:
+        Dprint("Chip object close() called")
+        chip_close()
+    else:
+        Dprint("NO-OP call to Chip object close)")
+
+
 # === Interface Functions ===
 
 def setmode(mode):
@@ -149,27 +221,13 @@ def setmode(mode):
     if mode == BOARD:
         raise ValueError("We currently do not suppprt BOARD mode")
     
-    if mode == BCM:
-        gpiochips = []
-        for root, dirs, files in os.walk('/dev/'):
-            for filename in files:
-                if filename.find('gpio') > -1:
-                    gpiochips.append(filename)
-        if not gpiochips:
-            raise ValueError("No compatible chips found")
-    
     _State.mode = mode
-    # This is hardcoded for now but that may change soon (or not)
-    try:
-        _State.chip = gpiod.Chip("gpiochip0")
-    except PermissionError:
-        print("Script or interpreter must be run as root")
-        sys.exit()
+
+    chip_init_if_needed()
 
     Dprint("mode set to", _State.mode)
-    Dprint("state chip has value:", _State.chip)
 
-def setwarnings(value = True):
+def setwarnings(value):
     """Enable or disable warning messages"""
     _State.warnings = bool(value)
     Dprint("warning output set to", _State.warnings)
@@ -194,6 +252,8 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     if not is_all_ints(channel):
         raise ValueError("Channel must be an integer or list/tuple of integers")
 
+    chip_init_if_needed()
+
     # Direction must be valid
     if direction != IN and direction != OUT:
         raise ValueError("An invalid direction was passed to setup()")
@@ -210,6 +270,9 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     # Make the channel data iterable by force
     if not is_iterable(channel):
         channel = [channel]
+    
+    for pin in channel:
+        pin = channel_fix_and_validate(pin)
     
     for pin in channel:
         _State.lines[pin] = _State.chip.get_line(pin)
@@ -337,10 +400,6 @@ def poll_thread(channel, edge, callback, bouncetime):
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
-def validate_pin_or_die(channel):
-    if channel < 0 or channel > _State.chip.num_lines() - 1:
-        raise ValueError("Invalid pin number")
-
 
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
     """
@@ -353,6 +412,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     {compat} we do not require that the channel be setup as an input as a prerequiste to running this function,
     however the initial value on the channel is undefined
     """
+    channel = channel_fix_and_validate(channel)
 
     valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
     if edge not in valid_edges:
@@ -364,7 +424,6 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     if bouncetime and bouncetime <= 0:
         raise ValueError ("Bouncetime must be greater than 0")
 
-    validate_pin_or_die(channel)
 
     _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
     _State.callbacks[channel] = []
@@ -430,22 +489,17 @@ def cleanup():
     [channel] - individual channel or list/tuple of channels to clean up.
     Default - clean every channel that has been used.
 
-    {compat} Cleanup is handled by libgpiod and the kernel
+    {compat} Cleanup is handled by libgpiod and the kernel, but we use this opportunity to kill any running callback poll threads
     """
 
     for channel in _State.killsigs:
         _State.killsigs[channel].set()
 
+    chip_close_if_open()
+
 
 def get_gpio_number(channel):
-    if _State.mode == BOARD:
-        if pin_to_gpio_rev3[channel] == -1:
-            raise ValueError("The channel sent is invalid on a Raspberry Pi")
-        else:
-            return pin_to_gpio_rev3[channel]
-    else:
-        validate_pin_or_die(channel) 
-        return channel
+        return channel_fix_and_validate(channel)
 
 
 def gpio_function(channel):

@@ -96,3 +96,81 @@ def test_set_mode():
     # Board mode is not currently supported (TODO)
     with pytest.raises(ValueError):
         GPIO.setmode(GPIO.BOARD)
+
+def test_set_warnings():
+    GPIO.Reset()
+
+    GPIO.setwarnings(True)
+    assert GPIO.State_Access().warnings == True
+
+    GPIO.setwarnings(False)
+    assert GPIO.State_Access().warnings == False
+
+def test_setup():
+    GPIO.Reset()
+
+    GPIO.setmode(GPIO.BCM)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup("foo", "bar")
+    assert "Channel must be an integer" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup("foo", GPIO.OUT) 
+    assert "Channel must be an integer" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(["foo", "bar"], GPIO.OUT) 
+    assert "Channel must be an integer" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup([1, "bar"], GPIO.OUT) 
+    assert "Channel must be an integer" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(54, GPIO.OUT)
+    assert "channel sent is invalid" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(666, GPIO.OUT)
+    assert "channel sent is invalid" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(-1, GPIO.OUT)
+    assert "channel sent is invalid" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(23, -666)     # Shoutout to RPi.GPIO magic numbers
+    assert "invalid direction was passed" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(34, GPIO.OUT, GPIO.PUD_UP)
+    assert "pull_up_down parameter is not valid for outputs" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(34, GPIO.IN, -666)
+    assert "Invalid value for pull_up_down" in str(e.value)
+
+    GPIO.setup(34, GPIO.IN, GPIO.PUD_UP)
+
+    with pytest.warns(Warning) as w:
+        GPIO.setup([32,33,34], GPIO.OUT)
+    assert "already in use" in str(w[0].message)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.setup(2, GPIO.IN, GPIO.PUD_OFF, 1)
+    assert "initial parameter is not valid for inputs" in str(e.value)
+
+    GPIO.setup([2,3,4], GPIO.OUT)
+
+    # Ensure line objects for those pins were successfully created
+    assert all([pin in GPIO.State_Access().lines.keys() for pin in [2,3,4]])
+
+
+
+def test_output():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+    
+    GPIO.setup([18,19,20], GPIO.OUT)
+
