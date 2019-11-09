@@ -484,6 +484,7 @@ def cleanup_poll_thread(channel):
     del _State.killsigs[channel]
     del _State.callbacks[channel]
 
+
 def cleanup_all_poll_threads():
     for channel in _State.killsigs:
         kill_poll_thread(channel)

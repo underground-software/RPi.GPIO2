@@ -18,6 +18,7 @@ x = [line]
 for y in x:
     try:
         y.request(consumer=chip.name(), type=gpiod.LINE_REQ_DIR_OUT)
+        y.set_value(1)
     except OSError:
         warn("there is a problem")
 

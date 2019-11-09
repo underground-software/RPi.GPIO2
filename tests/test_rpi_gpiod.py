@@ -144,19 +144,18 @@ def test_setup():
     assert "invalid direction was passed" in str(e.value)
 
     with pytest.raises(ValueError) as e:
-        GPIO.setup(34, GPIO.OUT, GPIO.PUD_UP)
+        GPIO.setup(18, GPIO.OUT, GPIO.PUD_UP)
     assert "pull_up_down parameter is not valid for outputs" in str(e.value)
 
     with pytest.raises(ValueError) as e:
-        GPIO.setup(34, GPIO.IN, -666)
+        GPIO.setup(18, GPIO.IN, -666)
     assert "Invalid value for pull_up_down" in str(e.value)
 
-    # This knocks out wifi
-    # GPIO.setup(34, GPIO.IN, GPIO.PUD_UP)
+    GPIO.setup(18, GPIO.IN, GPIO.PUD_UP)
 
-    # with pytest.warns(Warning) as w:
-    #     GPIO.setup([32,33,34], GPIO.OUT)
-    # assert "already in use" in str(w[0].message)
+    with pytest.warns(Warning) as w:
+        GPIO.setup([16,17,18], GPIO.OUT)
+    assert "already in use" in str(w[0].message)
 
     with pytest.raises(ValueError) as e:
         GPIO.setup(2, GPIO.IN, GPIO.PUD_OFF, 1)
