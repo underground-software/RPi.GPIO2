@@ -87,9 +87,6 @@ def test_setmode():
     # with os.setuid(1):
     #     GPIO.setmode(GPIO.BCM)
 
-    # Board mode is not currently supported (TODO)
-    with pytest.raises(ValueError):
-        GPIO.setmode(GPIO.BOARD)
 
 def test_set_warnings():
     GPIO.Reset()
@@ -211,3 +208,4 @@ def test_output():
     with pytest.raises(Exception):
         GPIO.output([],[])
 
+    GPIO.Reset()

@@ -216,10 +216,6 @@ def setmode(mode):
 
     if mode != BCM and mode != BOARD:
         raise ValueError("An invalid mode was passed to setmode()")
-
-    # Temporarily:
-    if mode == BOARD:
-        raise ValueError("We currently do not suppprt BOARD mode")
     
     _State.mode = mode
 
@@ -301,7 +297,6 @@ def output(channel, value):
     for chan in channel:
         chan = channel_fix_and_validate(chan)
 
-    print("BEFORE TROUBLE:",value, is_all_ints(value), is_all_bools(value))
     if not is_all_ints(value) and not is_all_bools(value):
        raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
     
@@ -376,7 +371,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
 
     if _State.lines[channel].is_used() and not channel in _State.lines.keys():
         raise RuntimeError("Channel is currently in use (Device or Resource Busy)")
-   #alt    PyErr_SetString(PyExc_RuntimeError, "Conflicting edge detection events already exist for this GPIO channel");
+   # alt    rasie RuntimeError("Conflicting edge detection events already exist for this GPIO channel")
      
     if not _State.lines[channel].is_used():
         _State.lines[channel].request(consumer="GPIO666", type=edge)
@@ -518,7 +513,6 @@ def cleanup_all_poll_threads():
 
 def cleanup_line(channel):
     _State.lines[channel].release()
-    print("RELEASE:", channel)
     del _State.lines[channel]
     # We don't want to affect bouncetime handling if channel is used again
     if channel in _State.timestamps.keys():
