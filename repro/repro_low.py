@@ -11,7 +11,8 @@ print("chip:", chip.name(), "line:", line)
 line.request(consumer=chip.name(), type=gpiod.LINE_REQ_DIR_IN)
 
 
-line = chip.get_line(18)
+# This requests access to line 34 from the kernel, but this is the WiFi interface
+line = chip.get_line(34)
 
 x = [line]
 
