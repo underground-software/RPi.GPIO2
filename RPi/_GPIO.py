@@ -5,24 +5,24 @@ import sys
 import time
 from threading import Thread, Event
 
- # _            _       
-# | |_ ___   __| | ___  
-# | __/ _ \ / _` |/ _ \ 
+#
+# | |_ ___   __| | ___
+# | __/ _ \ / _` |/ _ \
 # | || (_) | (_| | (_) |
- # \__\___/ \__,_|\___/ 
+#  \__\___/ \__,_|\___/
 
- # TODO Docstrings not appearing properly when using help(GPIO)
- 
- # TODO Pull-up/Pull-down resistors??? How to handle
+# TODO Docstrings not appearing properly when using help(GPIO)
+
+# TODO Pull-up/Pull-down resistors??? How to handle
 
 # === User Facing Data ===
 
 
 pin_to_gpio_rev3 = [
-                    -1, -1, -1,  2, -1, 3,  -1,  4, 14, -1,
-                    15, 17, 18, 27, -1, 22, 23, -1, 24, 10,
-                    -1,  9, 25, 11,  8, -1,  7, -1, -1,  5,
-                    -1,  6, 12, 13, -1, 19, 16, 26, 20, -1, 21
+                    -1, -1, -1,  2, -1, 3,  -1,  4, 14, -1,     # NOQA
+                    15, 17, 18, 27, -1, 22, 23, -1, 24, 10,     # NOQA
+                    -1,  9, 25, 11,  8, -1,  7, -1, -1,  5,     # NOQA
+                    -1,  6, 12, 13, -1, 19, 16, 26, 20, -1, 21  # NOQA
                    ]
 
 # Pin numbering modes
@@ -49,7 +49,9 @@ RISING_EDGE     = gpiod.LINE_REQ_EV_RISING_EDGE
 BOTH_EDGE       = gpiod.LINE_REQ_EV_BOTH_EDGES
 AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
+
 # === Internal Data ===
+
 
 # Internal library state
 class _State:
@@ -69,16 +71,20 @@ class _State:
 _OUTPUT = gpiod.Line.DIRECTION_OUTPUT
 _INPUT = gpiod.Line.DIRECTION_INPUT
 
+
 # === Helper Routines ===
+
 
 def Dprint(*msgargs):
     """ Print debug information for development purposes"""
     if _State.debuginfo:
         print("[DEBUG]", *msgargs)
 
+
 # Mess with the internal state for development or recreational purposes
 def State_Access():
     return _State
+
 
 # Reset internal state to default
 def Reset():
@@ -90,7 +96,7 @@ def Reset():
     # Reset _State to default values
     _State.mode       = UNKNOWN
     _State.warnings   = True
-    _State.debuginfo  = True
+    _State.debuginfo  = False
     _State.chip       = None
     _State.event_ls   = []
     _State.lines      = {}
@@ -99,41 +105,42 @@ def Reset():
     _State.killsigs   = {}
     _State.timestamps = {}
 
-    # Anything else?
-
-## Fuse these functions and refactor later *?*
 
 def is_all_ints(data):
     if not is_iterable(data):
-            data = [data]
+        data = [data]
     if len(data) < 1:
         return False
-    return all([isinstance(elem,int) for elem in data]) \
-        if not isinstance(data,int)\
-            else True
+    return all([isinstance(elem, int) for elem in data]) \
+        if not isinstance(data, int)\
+        else True
+
 
 def is_all_bools(data):
     if not is_iterable(data):
-            data = [data]
+        data = [data]
     if len(data) < 1:
         return False
-    return all([isinstance(elem,bool) for elem in data]) \
-        if not isinstance(data,bool)\
-            else True
+    return all([isinstance(elem, bool) for elem in data]) \
+        if not isinstance(data, bool)\
+        else True
+
 
 def is_iterable(data):
     try:
-        it = iter(data)
+        iter(data)
     except TypeError:
         return False
     else:
         return True
+
 
 def channel_fix_and_validate_bcm(channel):
     if channel < 0 or channel > _State.chip.num_lines() - 1:
         raise ValueError("The channel sent is invalid on a Raspberry Pi")
     else:
         return channel
+
 
 def channel_fix_and_validate_board(channel):
     if channel < 1 or channel > len(pin_to_gpio_rev3) - 1:
@@ -145,6 +152,7 @@ def channel_fix_and_validate_board(channel):
         raise ValueError("The channel sent is invalid on a Raspberry Pi")
     else:
         return channel
+
 
 def channel_fix_and_validate(channel_raw):
     chip_init_if_needed()
@@ -162,7 +170,7 @@ def channel_fix_and_validate(channel_raw):
         return channel_fix_and_validate_bcm(channel_raw)
     elif _State.mode == BOARD:
         return channel_fix_and_validate_board(channel_raw)
-    
+
 
 def validate_gpio_dev_exists():
     gpiochips = []
@@ -172,6 +180,7 @@ def validate_gpio_dev_exists():
                 gpiochips.append(filename)
     if not gpiochips:
         raise ValueError("No compatible chips found")
+
 
 def chip_init():
     # Validate the existence of a gpio character device
@@ -185,9 +194,11 @@ def chip_init():
         sys.exit()
     Dprint("state chip has value:", _State.chip)
 
+
 def chip_close():
     _State.chip.close()
     _State.chip = None
+
 
 def chip_init_if_needed():
     if _State.chip is None:
@@ -195,6 +206,7 @@ def chip_init_if_needed():
         Dprint("Chip object init() called")
     else:
         Dprint("NO-OP call to Chip object init()")
+
 
 def chip_close_if_open():
     if _State.chip is not None:
@@ -205,6 +217,7 @@ def chip_close_if_open():
 
 
 # === Interface Functions ===
+
 
 def setmode(mode):
     """
@@ -217,12 +230,13 @@ def setmode(mode):
 
     if mode != BCM and mode != BOARD:
         raise ValueError("An invalid mode was passed to setmode()")
-    
+
     _State.mode = mode
 
     chip_init_if_needed()
 
     Dprint("mode set to", _State.mode)
+
 
 def setwarnings(value):
     """Enable or disable warning messages"""
@@ -244,7 +258,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
         [pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN
         [initial]      - Initial value for an output channel
     """
-    
+
     # Channel must contain only integral data
     if not is_all_ints(channel):
         raise ValueError("Channel must be an integer or list/tuple of integers")
@@ -255,7 +269,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
 
     if direction == OUT and pull_up_down != PUD_OFF:
         raise ValueError("pull_up_down parameter is not valid for outputs")
-    
+
     if direction == IN and initial:
         raise ValueError("initial parameter is not valid for inputs")
 
@@ -265,21 +279,22 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     # Make the channel data iterable by force
     if not is_iterable(channel):
         channel = [channel]
-    
+
     # This implements BOARD mode
     for pin in channel:
         pin = channel_fix_and_validate(pin)
-    
+
     for pin in channel:
         _State.lines[pin] = _State.chip.get_line(pin)
         try:
-            _State.lines[pin].request(consumer=_State.chip.name(), type=direction)  
+            _State.lines[pin].request(consumer=_State.chip.name(), type=direction)
             if initial is not None:
-                    _State.lines[pin].set_value(initial)
+                _State.lines[pin].set_value(initial)
         except OSError:
-            warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use channel {} will fail unless setup() is run again sucessfully".format(pin))
+            warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n \
+                    Further attemps to use channel {} will fail unless setup() is run again sucessfully".format(pin))
 
-        
+
 def output(channel, value):
     """
     Output to a GPIO channel or list of channel
@@ -292,25 +307,25 @@ def output(channel, value):
         raise ValueError("Channel must be an integer or list/tuple of integers")
 
     if not is_iterable(channel):
-       channel = [channel]
+        channel = [channel]
 
     # This implements BOARD mode
     for chan in channel:
         chan = channel_fix_and_validate(chan)
 
-    if not is_all_ints(value) and not is_all_bools(value):
-       raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
-    
+    print("is_all_ints=", is_all_ints(value), "for value=", value)
+    if (not is_all_ints(value)) and (not is_all_bools(value)):
+        raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
+
     if not is_iterable(value):
         value = [value]
 
     if len(channel) != len(value):
-       raise RuntimeError("Number of channel != number of value")
+        raise RuntimeError("Number of channel != number of value")
 
-   
     for chan, val in zip(channel, value):
         if chan not in _State.lines.keys() or _State.lines[chan].direction() != _OUTPUT:
-             warn("The GPIO channel has not been set up as an OUTPUT\n\tSkipping channel {}".format(chan))
+            warn("The GPIO channel has not been set up as an OUTPUT\n\tSkipping channel {}".format(chan))
         else:
             try:
                 _State.lines[chan].set_value(bool(val))
@@ -327,8 +342,8 @@ def input(channel):
     # This implements BOARD mode
     channel = channel_fix_and_validate(channel)
 
-    if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
-            and _State.lines[channel].direction() != _OUTPUT):
+    if channel not in _State.lines.keys() \
+            or (_State.lines[channel].direction() != _INPUT and _State.lines[channel].direction() != _OUTPUT):
         raise RuntimeError("You must setup() the GPIO channel first")
 
     return _State.lines[channel].get_value()
@@ -370,15 +385,14 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
     if bouncetime is not None and bouncetime <= 0:
-        raise ValueError("Bouncetime must be greater than 0") 
+        raise ValueError("Bouncetime must be greater than 0")
 
     if timeout and timeout < 0:
-        raise ValueError("Timeout must be greater than or equal to 0") # error semantics differ from RPi.GPIO
+        raise ValueError("Timeout must be greater than or equal to 0")  # error semantics differ from RPi.GPIO
 
-    if _State.lines[channel].is_used() and not channel in _State.lines.keys():
+    if _State.lines[channel].is_used() and channel not in _State.lines.keys():
         raise RuntimeError("Channel is currently in use (Device or Resource Busy)")
-   # alt    rasie RuntimeError("Conflicting edge detection events already exist for this GPIO channel")
-     
+
     if not _State.lines[channel].is_used():
         _State.lines[channel].request(consumer="GPIO666", type=edge)
 
@@ -405,6 +419,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
         return event
     else:
         return None
+
 
 def poll_thread(channel, edge, callback, bouncetime):
 
@@ -440,8 +455,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         raise TypeError("Parameter must be callable")
 
     if bouncetime and bouncetime <= 0:
-        raise ValueError ("Bouncetime must be greater than 0")
-
+        raise ValueError("Bouncetime must be greater than 0")
 
     _State.threads[channel] = Thread(target=poll_thread, args=(channel, edge, callback, bouncetime))
     _State.callbacks[channel] = []
@@ -504,6 +518,7 @@ def event_detected(channel):
     else:
         return False
 
+
 def cleanup_poll_thread(channel):
     _State.killsigs[channel].set()
     _State.threads[channel].join()
@@ -517,12 +532,13 @@ def cleanup_all_poll_threads():
     for channel in masterkeys:
         cleanup_poll_thread(channel)
 
+
 def cleanup_line(channel):
     _State.lines[channel].release()
     del _State.lines[channel]
     # We don't want to affect bouncetime handling if channel is used again
     if channel in _State.timestamps.keys():
-        del _State.timestamps[channel] 
+        del _State.timestamps[channel]
 
 
 def cleanup_all_lines():
@@ -530,7 +546,7 @@ def cleanup_all_lines():
     masterkeys = list(_State.lines.keys())
     for channel in masterkeys:
         cleanup_line(channel)
-        
+
 
 def cleanup():
     """
@@ -548,7 +564,7 @@ def cleanup():
 
 
 def get_gpio_number(channel):
-        return channel_fix_and_validate(channel)
+    return channel_fix_and_validate(channel)
 
 
 def gpio_function(channel):
