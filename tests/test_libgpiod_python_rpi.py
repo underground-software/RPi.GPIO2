@@ -319,6 +319,13 @@ def test_event_detected():
 
     GPIO.add_event_detect(18, GPIO.FALLING_EDGE, bouncetime=1)
     GPIO.event_detected(18)
+    
+    assert GPIO.event_detected(18) == False
+
+    # Manufacture a false positive
+    GPIO.State_Access().event_ls.append(18)
+    assert GPIO.event_detected(18) == True
+
     GPIO.Reset()
 
 

@@ -394,7 +394,9 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
                 if time.time() - _State.timestamps[channel] > bouncetime:
                     break       # wait for $bouncetime to elapse before continuing
         _State.timestamps[channel] = time.time()
-        _State.event_ls.append(channel)
+        if channel not in _State.event_ls:
+            # Ensure no double appends
+            _State.event_ls.append(channel)
         event = _State.lines[channel].event_read()
 
         # A hack to clear the event buffer by reading a bunch of bytes from the file representing the GPIO line
@@ -477,7 +479,6 @@ def remove_event_detect(channel):
     Remove edge detection for a particular GPIO channel
     channel - either board pin number or BCM number depending on which mode is set.
     """
-
 
     # This implements BOARD mode
     channel = channel_fix_and_validate(channel)
