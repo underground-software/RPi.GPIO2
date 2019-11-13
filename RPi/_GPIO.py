@@ -11,11 +11,9 @@ from threading import Thread, Event
 # | || (_) | (_| | (_) |
  # \__\___/ \__,_|\___/ 
 
- # Docstrings not appearing properly when using help(GPIO)
+ # TODO Docstrings not appearing properly when using help(GPIO)
  
- # Pull-up/Pull-down resistors??? How to handle
-
- # Reach greater than 90% test coverage
+ # TODO Pull-up/Pull-down resistors??? How to handle
 
 # === User Facing Data ===
 
@@ -154,6 +152,9 @@ def channel_fix_and_validate(channel_raw):
     # This function is only defined over three mode settings
     # It should be invariant that mode will contain one of these three values
     # Other values of mode are undefined
+
+    if not isinstance(channel_raw, int):
+        raise ValueError("The channel sent is invalid on a Raspberry Pi")
 
     if _State.mode == UNKNOWN:
         raise RuntimeError("Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)")
@@ -303,8 +304,8 @@ def output(channel, value):
     if not is_iterable(value):
         value = [value]
 
-#     if len(channel) != len(value):
-#        raise RuntimeError("Number of channel != number of value")
+    if len(channel) != len(value):
+       raise RuntimeError("Number of channel != number of value")
 
    
     for chan, val in zip(channel, value):
@@ -357,13 +358,18 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     channel = channel_fix_and_validate(channel)
 
     # Running this function before setup is allowed but the initial pin value is undefined
+    # RPi.GPIO requires one to setup a pin as input before using it for event detection,
+    # while libgpiod provides an interface that keeps the two mutually exclusive. We get around
+    # this by not requiring it, though to maintain the same semantics as RPi.GPIO, we attempt
+    # to release the channel's handle as a an input value, and acquire a new handle for an
+    # event value.
     if channel not in _State.lines.keys():
         _State.lines[channel] = _State.chip.get_line(channel)
 
     if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
-    if bouncetime and bouncetime <= 0:
+    if bouncetime is not None and bouncetime <= 0:
         raise ValueError("Bouncetime must be greater than 0") 
 
     if timeout and timeout < 0:
@@ -376,11 +382,9 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if not _State.lines[channel].is_used():
         _State.lines[channel].request(consumer="GPIO666", type=edge)
 
-    if timeout:
-        timeout_sec = int(int(timeout) / 1000)
-        timeout_nsec = (int(timeout) % 1000) * 1000
-    else:
-        timeout = 0
+    # Split up timeout into appropriate parts
+    timeout_sec     = int(int(timeout) / 1000)
+    timeout_nsec    = (int(timeout) % 1000) * 1000
 
     if _State.lines[channel].event_wait(sec=timeout_sec, nsec=timeout_nsec):
         # We only care about bouncetime if it is explicitly speficied in the call to this function or if
@@ -508,7 +512,8 @@ def cleanup_poll_thread(channel):
 
 
 def cleanup_all_poll_threads():
-    for channel in _State.killsigs:
+    masterkeys = list(_State.killsigs.keys())
+    for channel in masterkeys:
         cleanup_poll_thread(channel)
 
 def cleanup_line(channel):

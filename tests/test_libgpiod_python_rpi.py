@@ -209,3 +209,126 @@ def test_output():
         GPIO.output([],[])
 
     GPIO.Reset()
+
+def test_input():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+
+    chans = [16,17,18]
+
+    GPIO.setup(chans, GPIO.IN)
+
+    # Invalid input
+    with pytest.raises(ValueError) as e:
+        GPIO.input(chans)
+    assert "channel sent is invalid" in str(e.value)
+
+    # Can't really do anything more complicated with pure software
+    GPIO.input(16)
+
+def test_wait_for_edge():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    # This only works in our impementation. RPi.GPIO requires
+    # one to setup the pin as an input first.
+    GPIO.wait_for_edge(16, GPIO.BOTH_EDGE, 1, 1)
+
+    # A quirk of our workaround is that a later attempt to setup the pin
+    # will result in a warning, despite there being no other call to
+    # setup(16)
+    with pytest.warns(Warning) as w:
+        GPIO.setup(16, GPIO.IN)
+    assert "already in use" in str(w[0].message)
+    # And subsequent calls to wait_for_edge will succeed just fine
+    GPIO.wait_for_edge(16, GPIO.BOTH_EDGE)
+
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+    with pytest.raises(ValueError) as e:
+        GPIO.wait_for_edge(16, 666)
+    assert "edge must be set" in str(e.value)
+
+    # Bouncetime > 0
+    with pytest.raises(ValueError) as e:
+        GPIO.wait_for_edge(16, GPIO.RISING_EDGE, 0)
+    assert "Bouncetime must be" in str(e.value)
+
+    # Timeout >= 0
+    with pytest.raises(ValueError) as e:
+        GPIO.wait_for_edge(16, GPIO.RISING_EDGE, timeout=-1)
+    assert "Timeout must be" in str(e.value)
+
+    # TODO We cannot test for the (Device or Resoruce Busy) exeption without another thread/process
+
+def test_add_event_detect():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.add_event_detect(16, 47)
+    assert "edge must be set" in str(e.value)
+
+    with pytest.raises(TypeError) as e:
+        GPIO.add_event_detect(16, GPIO.FALLING_EDGE, "foo")
+    assert "Parameter must be callable" in str(e.value)
+
+    # Bouncetime > 0
+    with pytest.raises(ValueError) as e:
+        GPIO.add_event_detect(16, GPIO.RISING_EDGE, bouncetime=-1)
+    assert "Bouncetime must be" in str(e.value)
+
+    GPIO.add_event_detect(16, GPIO.FALLING_EDGE, foo, 1)
+    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.Reset()
+
+def test_add_event_callback():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+
+    with pytest.raises(RuntimeError) as e:
+        GPIO.add_event_callback(16, foo)
+    assert "Add event detection using add_event_detect first" in str(e.value)
+    
+    with pytest.raises(TypeError) as e:
+        GPIO.add_event_callback(17, "foo")
+    assert "Parameter must be callable" in str(e.value)
+
+    GPIO.add_event_callback(17, foo)
+    GPIO.Reset()
+    
+def test_remove_event_detect():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.add_event_callback(17, foo)
+
+    GPIO.remove_event_detect(17)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.remove_event_detect(16)
+    assert "event detection not setup" in str(e.value)
+
+def test_event_detected():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.add_event_detect(18, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.event_detected(18)
+    GPIO.Reset()
+
+
+def test_gpio_function():
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+
+    assert GPIO.gpio_function(16) == 16
+
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BOARD)
+    
+    assert GPIO.gpio_function(16) == 11
