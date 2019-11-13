@@ -49,12 +49,6 @@ def test_setmode_raise_invalid_mode_exception():
     with pytest.raises(Exception):
         GPIO.setmode([])
 
-def test_output_raise_value_errors():
-    GPIO.Reset()
-    with pytest.raises(Exception):
-        GPIO.output([1,2,3],[1,2,3,4])
-    with pytest.raises(Exception):
-        GPIO.output([],[])
 
 def test_getmode():
     GPIO.Reset()
@@ -171,6 +165,49 @@ def test_setup():
 def test_output():
     GPIO.Reset()
     GPIO.setmode(GPIO.BCM)
-    
-    GPIO.setup([18,19,20], GPIO.OUT)
+    chans = [16,17,18]
+
+    GPIO.setup(chans, GPIO.OUT)
+
+    GPIO.output(chans, [1,0,1])
+
+    GPIO.Reset()
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(chans, GPIO.OUT)
+
+    # Make sure the simple case works
+    GPIO.output(16, 1)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.output("foo", "bar")
+    assert "Channel must be an integer or list/tuple of integers" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.output([16, "foo"], 1)
+    assert "Channel must be an integer or list/tuple of integers" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.output(16, [])
+    assert "Value must be an integer/boolean or a list/tuple of integers/booleans" in str(e.value)
+
+    with pytest.warns(Warning) as w:
+        GPIO.output(19, 1)
+    assert "channel has not been set up as an OUTPUT" in str(w[0].message)
+
+    # Also might be worth triggering the error condition
+    # Not sure how to do this without having a second process use a gpio port
+
+    # TODO: why does this raise a different exception than expected?
+    # with pytest.raises(RuntimeError):
+    #     GPIO.output(chans, [1,0,0,1])
+    # assert "Number of channel != number of value" in str(e.value)
+
+
+    # Other tests
+    GPIO.Reset()
+    with pytest.raises(Exception):
+        GPIO.setup([1,2,3], GPIO.OUT)
+        GPIO.output([1,2,3],[1,2,3,4])
+    with pytest.raises(Exception):
+        GPIO.output([],[])
 

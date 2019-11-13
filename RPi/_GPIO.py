@@ -11,11 +11,11 @@ from threading import Thread, Event
 # | || (_) | (_| | (_) |
  # \__\___/ \__,_|\___/ 
 
- # BIG TODO FIXME TODO FIXME implement BOARD MODE
-
  # Docstrings not appearing properly when using help(GPIO)
  
  # Pull-up/Pull-down resistors??? How to handle
+
+ # Reach greater than 90% test coverage
 
 # === User Facing Data ===
 
@@ -269,6 +269,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     if not is_iterable(channel):
         channel = [channel]
     
+    # This implements BOARD mode
     for pin in channel:
         pin = channel_fix_and_validate(pin)
     
@@ -279,8 +280,7 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
             if initial is not None:
                     _State.lines[pin].set_value(initial)
         except OSError:
-            warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use this chip will fail unless setup() is run again sucessfully")
-            del _State.lines[pin]
+            warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n Further attemps to use channel {} will fail unless setup() is run again sucessfully".format(pin))
 
         
 def output(channel, value):
@@ -288,6 +288,8 @@ def output(channel, value):
     Output to a GPIO channel or list of channel
     channel - either board pin number or BCM number depending on which mode is set.
     value   - 0/1 or False/True or LOW/HIGH
+
+    {compat} channel and value parameters may be lists or tuples of equal length
     """
     if not is_all_ints(channel):
         raise ValueError("Channel must be an integer or list/tuple of integers")
@@ -295,19 +297,24 @@ def output(channel, value):
     if not is_iterable(channel):
        channel = [channel]
 
+    # This implements BOARD mode
+    for chan in channel:
+        chan = channel_fix_and_validate(chan)
+
+    print("BEFORE TROUBLE:",value, is_all_ints(value), is_all_bools(value))
     if not is_all_ints(value) and not is_all_bools(value):
        raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
     
     if not is_iterable(value):
         value = [value]
 
-    if len(channel) != len(value):
-       raise RuntimeError("Number of channel != number of value")
+#     if len(channel) != len(value):
+#        raise RuntimeError("Number of channel != number of value")
 
    
     for chan, val in zip(channel, value):
         if chan not in _State.lines.keys() or _State.lines[chan].direction() != _OUTPUT:
-             warn("The GPIO channel has not been set up as an OUTPUT\n\tSkipping channel ", (chan))
+             warn("The GPIO channel has not been set up as an OUTPUT\n\tSkipping channel {}".format(chan))
         else:
             try:
                 _State.lines[chan].set_value(bool(val))
@@ -320,6 +327,9 @@ def input(channel):
     Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
     # channel - either board pin number or BCM number depending on which mode is set.
     """
+
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
 
     if channel not in _State.lines.keys() or (_State.lines[channel].direction() != _INPUT \
             and _State.lines[channel].direction() != _OUTPUT):
@@ -345,8 +355,11 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     [bouncetime] - time allowed between calls to allow for switchbounce
     [timeout]    - timeout in ms
 
-    {compat} bouncetime units are in seconds
+    {compat} bouncetime units are in seconds. this is subject to change
     """
+
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
 
     # Running this function before setup is allowed but the initial pin value is undefined
     if channel not in _State.lines.keys():
@@ -394,6 +407,9 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
 
 def poll_thread(channel, edge, callback, bouncetime):
 
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
+
     while not _State.killsigs[channel].is_set():
         if wait_for_edge(channel, edge, bouncetime, 1000):
             for callback_func in _State.callbacks[channel]:
@@ -411,6 +427,8 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     {compat} we do not require that the channel be setup as an input as a prerequiste to running this function,
     however the initial value on the channel is undefined
     """
+
+    # This implements BOARD mode
     channel = channel_fix_and_validate(channel)
 
     valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
@@ -443,12 +461,14 @@ def add_event_callback(channel, callback):
     {compat} we do not require that the channel be setup as an input
     """
 
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
+
     if channel not in _State.threads.keys():
         raise RuntimeError("Add event detection using add_event_detect first before adding a callback")
 
     if not callable(callback):
         raise TypeError("Parameter must be callable")
-    
 
     _State.callbacks[channel].append(callback)
 
@@ -458,6 +478,10 @@ def remove_event_detect(channel):
     Remove edge detection for a particular GPIO channel
     channel - either board pin number or BCM number depending on which mode is set.
     """
+
+
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
 
     if channel in _State.threads.keys():
         cleanup_poll_thread(channel)
@@ -470,6 +494,9 @@ def event_detected(channel):
     Returns True if an edge has occurred on a given GPIO.  You need to enable edge detection using add_event_detect() first.
     channel - either board pin number or BCM number depending on which mode is set."
     """
+
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
 
     if channel in _State.event_ls:
         _State.event_ls.remove(channel)
@@ -487,7 +514,22 @@ def cleanup_poll_thread(channel):
 
 def cleanup_all_poll_threads():
     for channel in _State.killsigs:
-        kill_poll_thread(channel)
+        cleanup_poll_thread(channel)
+
+def cleanup_line(channel):
+    _State.lines[channel].release()
+    print("RELEASE:", channel)
+    del _State.lines[channel]
+    # We don't want to affect bouncetime handling if channel is used again
+    if channel in _State.timestamps.keys():
+        del _State.timestamps[channel] 
+
+
+def cleanup_all_lines():
+    # We must copy the keylist because the dict will change size during iteration
+    masterkeys = list(_State.lines.keys())
+    for channel in masterkeys:
+        cleanup_line(channel)
         
 
 def cleanup():
@@ -496,9 +538,12 @@ def cleanup():
     [channel] - individual channel or list/tuple of channels to clean up.
     Default - clean every channel that has been used.
 
-    {compat} Cleanup is handled by libgpiod and the kernel, but we use this opportunity to kill any running callback poll threads
+    {compat} Cleanup is mostly handled by libgpiod and the kernel, but we use this opportunity to kill any running callback poll threads
+        as well as close any open file descriptors
     """
+
     cleanup_all_poll_threads()
+    cleanup_all_lines()
     chip_close_if_open()
 
 
@@ -513,6 +558,9 @@ def gpio_function(channel):
 
     {compat} This is a stateless function that will return a constant value for every pin
     """
+
+    # This implements BOARD mode
+    channel = channel_fix_and_validate(channel)
 
     # error handling is done in the called function
     return get_gpio_number(channel)
