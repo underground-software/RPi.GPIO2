@@ -1,0 +1,4 @@
+[flake8]
+	ignore = E221, F401
+	max-line-length = 140
+	exclude = tests/*, examples/*, misc/*
