@@ -1,4 +1,4 @@
-## libgpiod-python-rpi
+## python3-libgpiod-rpi
 
 #### Summary:
 
