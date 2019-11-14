@@ -55,7 +55,7 @@ AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
 # Internal library state
 class _State:
-    mode       = UNKNOWN
+mode       = UNKNOWN
     warnings   = True
     debuginfo  = True
     chip       = None
@@ -315,14 +315,12 @@ def output(channel, value):
 
     print("is_all_ints=", is_all_ints(value), "for value=", value)
     if (not is_all_ints(value)) and (not is_all_bools(value)):
-        print("FUUUUUCCCKKK")
         raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
 
     if not is_iterable(value):
         value = [value]
 
     if len(channel) != len(value):
-        print("SHHHIIIIEEEEETTTT")
         raise RuntimeError("Number of channel != number of value")
 
     for chan, val in zip(channel, value):
