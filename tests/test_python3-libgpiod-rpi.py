@@ -346,3 +346,13 @@ def test_gpio_function():
     GPIO.setmode(GPIO.BOARD)
     
     assert GPIO.gpio_function(16) == 11
+
+def test_setdebuginfo():
+    GPIO_DEVEL.Reset()
+
+    # Off by default
+    assert GPIO_DEVEL.State_Access().debuginfo == False
+
+    GPIO_DEVEL.setdebuginfo(True)
+
+    assert GPIO_DEVEL.State_Access().debuginfo == True

@@ -55,9 +55,9 @@ AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
 
 # Internal library state
 class _State:
-mode       = UNKNOWN
+    mode       = UNKNOWN
     warnings   = True
-    debuginfo  = True
+    debuginfo  = False
     chip       = None
     event_ls   = []
     lines      = {}
@@ -313,7 +313,6 @@ def output(channel, value):
     for chan in channel:
         chan = channel_fix_and_validate(chan)
 
-    print("is_all_ints=", is_all_ints(value), "for value=", value)
     if (not is_all_ints(value)) and (not is_all_bools(value)):
         raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
 
