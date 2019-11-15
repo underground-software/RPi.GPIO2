@@ -15,6 +15,8 @@ from threading import Thread, Event
 
 # TODO Pull-up/Pull-down resistors??? How to handle
 
+# TODO Some weirdness with the timing of callbacks (might be due to testing hardware)
+
 # === User Facing Data ===
 
 
@@ -426,7 +428,7 @@ def poll_thread(channel, edge, callback, bouncetime):
     channel = channel_fix_and_validate(channel)
 
     while not _State.killsigs[channel].is_set():
-        if wait_for_edge(channel, edge, bouncetime, 1000):
+        if wait_for_edge(channel, edge, bouncetime, 10):
             for callback_func in _State.callbacks[channel]:
                 callback_func(channel)
 
