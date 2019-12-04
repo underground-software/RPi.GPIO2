@@ -215,7 +215,7 @@ def chip_close_if_open():
         Dprint("Chip object close() called")
         chip_close()
     else:
-        Dprint("NO-OP call to Chip object close)")
+        Dprint("NO-OP call to Chip object close()")
 
 
 # === Interface Functions ===
