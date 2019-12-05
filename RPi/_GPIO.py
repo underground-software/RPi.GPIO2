@@ -46,10 +46,10 @@ IN  = gpiod.LINE_REQ_DIR_IN
 OUT = gpiod.LINE_REQ_DIR_OUT
 
 # Request types
-FALLING_EDGE    = gpiod.LINE_REQ_EV_FALLING_EDGE
-RISING_EDGE     = gpiod.LINE_REQ_EV_RISING_EDGE
-BOTH_EDGE       = gpiod.LINE_REQ_EV_BOTH_EDGES
-AS_IS           = gpiod.LINE_REQ_DIR_AS_IS
+FALLING     = gpiod.LINE_REQ_EV_FALLING_EDGE
+RISING      = gpiod.LINE_REQ_EV_RISING_EDGE
+BOTH        = gpiod.LINE_REQ_EV_BOTH_EDGES
+AS_IS       = gpiod.LINE_REQ_DIR_AS_IS
 
 
 # === Internal Data ===
@@ -382,7 +382,7 @@ def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
     if channel not in _State.lines.keys():
         _State.lines[channel] = _State.chip.get_line(channel)
 
-    if edge != RISING_EDGE and edge != FALLING_EDGE and edge != BOTH_EDGE:
+    if edge != RISING and edge != FALLING and edge != BOTH:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 
     if bouncetime is not None and bouncetime <= 0:
@@ -448,7 +448,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
     # This implements BOARD mode
     channel = channel_fix_and_validate(channel)
 
-    valid_edges = [RISING_EDGE, FALLING_EDGE, BOTH_EDGE]
+    valid_edges = [RISING, FALLING, BOTH]
     if edge not in valid_edges:
         raise ValueError("The edge must be set to RISING, FALLING or BOTH")
 

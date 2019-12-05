@@ -240,7 +240,7 @@ def test_wait_for_edge():
 
     # This only works in our impementation. RPi.GPIO requires
     # one to setup the pin as an input first.
-    GPIO.wait_for_edge(16, GPIO.BOTH_EDGE, 1, 1)
+    GPIO.wait_for_edge(16, GPIO.BOTH, 1, 1)
 
     # A quirk of our workaround is that a later attempt to setup the pin
     # will result in a warning, despite there being no other call to
@@ -249,7 +249,7 @@ def test_wait_for_edge():
         GPIO.setup(16, GPIO.IN)
     assert "already in use" in str(w[0].message)
     # And subsequent calls to wait_for_edge will succeed just fine
-    GPIO.wait_for_edge(16, GPIO.BOTH_EDGE)
+    GPIO.wait_for_edge(16, GPIO.BOTH)
 
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
@@ -259,12 +259,12 @@ def test_wait_for_edge():
 
     # Bouncetime > 0
     with pytest.raises(ValueError) as e:
-        GPIO.wait_for_edge(16, GPIO.RISING_EDGE, 0)
+        GPIO.wait_for_edge(16, GPIO.RISING, 0)
     assert "Bouncetime must be" in str(e.value)
 
     # Timeout >= 0
     with pytest.raises(ValueError) as e:
-        GPIO.wait_for_edge(16, GPIO.RISING_EDGE, timeout=-1)
+        GPIO.wait_for_edge(16, GPIO.RISING, timeout=-1)
     assert "Timeout must be" in str(e.value)
 
     # TODO We cannot test for the (Device or Resoruce Busy) exeption without another thread/process
@@ -278,23 +278,23 @@ def test_add_event_detect():
     assert "edge must be set" in str(e.value)
 
     with pytest.raises(TypeError) as e:
-        GPIO.add_event_detect(16, GPIO.FALLING_EDGE, "foo")
+        GPIO.add_event_detect(16, GPIO.FALLING, "foo")
     assert "Parameter must be callable" in str(e.value)
 
     # Bouncetime > 0
     with pytest.raises(ValueError) as e:
-        GPIO.add_event_detect(16, GPIO.RISING_EDGE, bouncetime=-1)
+        GPIO.add_event_detect(16, GPIO.RISING, bouncetime=-1)
     assert "Bouncetime must be" in str(e.value)
 
-    GPIO.add_event_detect(16, GPIO.FALLING_EDGE, foo, 1)
-    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.add_event_detect(16, GPIO.FALLING, foo, 1)
+    GPIO.add_event_detect(17, GPIO.FALLING, bouncetime=1)
     GPIO_DEVEL.Reset()
 
 def test_add_event_callback():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
 
-    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.add_event_detect(17, GPIO.FALLING, bouncetime=1)
 
     with pytest.raises(RuntimeError) as e:
         GPIO.add_event_callback(16, foo)
@@ -311,7 +311,7 @@ def test_remove_event_detect():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
 
-    GPIO.add_event_detect(17, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.add_event_detect(17, GPIO.FALLING, bouncetime=1)
     GPIO.add_event_callback(17, foo)
 
     GPIO.remove_event_detect(17)
@@ -324,7 +324,7 @@ def test_event_detected():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
 
-    GPIO.add_event_detect(18, GPIO.FALLING_EDGE, bouncetime=1)
+    GPIO.add_event_detect(18, GPIO.FALLING, bouncetime=1)
     GPIO.event_detected(18)
     
     assert GPIO.event_detected(18) == False
