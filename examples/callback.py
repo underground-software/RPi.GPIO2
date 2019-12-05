@@ -1,5 +1,4 @@
-#!/bin/python3
-import context
+#!/usr/bin/python3
 import RPi.GPIO as GPIO
 import time
 
@@ -25,7 +24,8 @@ GPIO.setmode(GPIO.BCM)
 # print("pass2")
 
 GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF, 0)
-GPIO.add_event_detect(testpin, GPIO.RISING_EDGE, callback_one, 1)
+GPIO.setup(25, GPIO.IN, GPIO.PUD_OFF)
+GPIO.add_event_detect(testpin, GPIO.RISING, callback_one, 1)
 
 
 print("ADD CALLBACK ONE")
