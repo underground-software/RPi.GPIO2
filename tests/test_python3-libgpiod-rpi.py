@@ -174,7 +174,8 @@ def test_output():
     GPIO.setup(chans, GPIO.OUT)
 
     # Make sure the simple case works
-    GPIO.output(16, 1)
+    GPIO.output(16, GPIO.HIGH)
+    GPIO.output(16, GPIO.LOW)
 
     with pytest.raises(ValueError) as e:
         GPIO.output("foo", "bar")

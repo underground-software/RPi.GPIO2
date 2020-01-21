@@ -4,7 +4,7 @@
 
 Summary: libgpiod compatibility layer for RPi.GPIO
 Name: python3-libgpiod-rpi
-Version: 0.1
+Version: 0.2
 Release: 1
 License: GPLv3
 Source: https://github.com/underground-software/%{name}/archive/v%{version}.tar.gz
