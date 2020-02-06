@@ -21,3 +21,9 @@ GPIO pins as if they were using the API imlpemented by RPi.GPIO, but instead usi
 libgpiod's python bindings. libgpiod provides a straightforward interface for interacting
 with GPIO pins on supported devices via the mainline Linux kernel interface.
 
+### Notes:
+
+Do not install `RPI.GPIO` via `pip3` as that will attempt to install the raspbian-only library
+that motivated this project in the first place. If that package is installed alonside this one,
+attempts to `import RPi.GPIO` will cause an error as python will attempt to import the wrong
+package.
