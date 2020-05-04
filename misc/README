@@ -2,4 +2,4 @@ The files in this directory can be used to reproduce an
 apparently permanent network crash by requesting access
 to a GPIO responsible for that interface
 
-NOTE: This directory should not be merged into the master branch
+TODO: figure out what to do with this information

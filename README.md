@@ -27,3 +27,12 @@ Do not install `RPI.GPIO` via `pip3` as that will attempt to install the raspbia
 that motivated this project in the first place. If that package is installed alonside this one,
 attempts to `import RPi.GPIO` will cause an error as python will attempt to import the wrong
 package.
+
+To install the python development dependencies, run `pip install -r requirements.txt`.
+
+Use of a virtual env is recomended for a development setup. This will allow local installation
+of the library via `pip install -e .` in the repository root.
+
+The libgpiod python bindings must be installed and accessible from the development environment.
+This package is not available via `pip install` and must be installed using the system package
+manager.
