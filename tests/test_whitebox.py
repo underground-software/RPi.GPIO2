@@ -2,7 +2,6 @@ import RPi.GPIO as GPIO
 import RPi.GPIO_DEVEL as GPIO_DEVEL
 import pytest
 import re
-import os
 
 def foo():
     pass
