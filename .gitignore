@@ -1,3 +1,10 @@
 .*
 __pycache__
 *.pyc
+bin
+lib
+src
+pyvenv.cfg
+dist
+lib64
+*.egg-info

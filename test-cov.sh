@@ -2,12 +2,19 @@
 
 PYTEST_FLAGS=""
 
-while getopts "s" FLAG; do
-	case $FLAG in
-	s)
-		PYTEST_FLAGS="$PYTEST_FLAGS -s"
-		;;
-	esac
+while getopts "sm" FLAG; do
+        case $FLAG in
+        s)
+                PYTEST_FLAGS="$PYTEST_FLAGS -s"
+                ;;
+        m)
+                PYTEST_FLAGS="$PYTEST_FLAGS --cov-report term-missing"
+                ;;
+        esac
 done
 
 pytest $PYTEST_FLAGS --cov=. tests/
+
+RES=$?
+
+exit $RES
