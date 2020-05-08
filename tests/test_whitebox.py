@@ -66,7 +66,12 @@ def test_getmode():
 
 def test_validate_pin_or_die():
     GPIO_DEVEL.Reset()
-    pass    
+    GPIO.setmode(GPIO.BOARD)
+    with pytest.raises(ValueError):
+        channel = GPIO.channel_valid_or_die(-666)
+
+    with pytest.raises(ValueError):
+        channel = GPIO.channel_valid_or_die(1)
 
 
 def test_setmode():
@@ -357,3 +362,115 @@ def test_setdebuginfo():
     GPIO_DEVEL.setdebuginfo(True)
 
     assert GPIO_DEVEL.State_Access().debuginfo == True
+
+def test_bias():
+    GPIO_DEVEL.Reset()
+
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(18, GPIO.IN , GPIO.PUD_UP)
+
+    assert GPIO.getbias(13) == GPIO.PUD_OFF
+    assert GPIO.getbias(18) == GPIO.PUD_UP
+
+    GPIO.setup(19, GPIO.IN , GPIO.PUD_DOWN)
+    assert GPIO.getbias(19) == GPIO.PUD_DOWN
+
+    GPIO.setup(20, GPIO.IN , GPIO.PUD_DISABLE)
+    assert GPIO.getbias(20) == GPIO.PUD_DISABLE
+
+    # Default behavior
+    GPIO.setup(21, GPIO.IN)
+    assert GPIO.getbias(21) == GPIO.PUD_OFF
+
+
+def test_getset_direction():
+    GPIO_DEVEL.Reset()
+
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(18, GPIO.IN , GPIO.PUD_UP)
+
+    assert GPIO.getdirection(18) == GPIO.IN
+
+    GPIO.add_event_detect(18, GPIO.FALLING, foo, 1)
+    GPIO.setdirection(18, GPIO.OUT)
+
+    assert GPIO.getdirection(18) == GPIO.OUT
+
+    GPIO.setdirection(18, GPIO.OUT)
+
+    assert GPIO.getdirection(18) == GPIO.OUT
+
+    GPIO.setdirection(18, GPIO.IN)
+
+    assert GPIO.getdirection(18) == GPIO.IN
+
+    GPIO.setdirection(18, GPIO.IN)
+
+    assert GPIO.getdirection(18) == GPIO.IN
+
+    with pytest.raises(ValueError):
+        GPIO.setdirection(18, "random string")
+
+    # sensible default for inactive channel
+    assert GPIO.getdirection(5) == -1
+
+
+def test_getset_bias():
+    GPIO_DEVEL.Reset()
+
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(18, GPIO.IN , GPIO.PUD_UP)
+
+    assert GPIO.getbias(18) == GPIO.PUD_UP
+
+    GPIO.setbias(18, GPIO.PUD_UP)
+
+    assert GPIO.getbias(18) == GPIO.PUD_UP
+
+    GPIO.setbias(18, GPIO.PUD_DOWN)
+
+    assert GPIO.getbias(18) == GPIO.PUD_DOWN
+
+    GPIO.setbias(18, GPIO.PUD_OFF)
+
+    assert GPIO.getbias(18) == GPIO.PUD_OFF
+
+    GPIO.setbias(18, GPIO.PUD_DISABLE)
+
+    assert GPIO.getbias(18) == GPIO.PUD_DISABLE
+
+    GPIO.setbias(18, GPIO.PUD_UP)
+
+    assert GPIO.getbias(18) == GPIO.PUD_UP
+
+    with pytest.raises(ValueError):
+        GPIO.setbias(18, "random string")
+
+    # sensible default for inactive channel
+    assert GPIO.getbias(5) == GPIO.PUD_OFF
+
+def test_getset_active_state():
+    GPIO_DEVEL.Reset()
+
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(18, GPIO.IN, GPIO.PUD_UP)
+
+    assert GPIO.getactive_state(18) == GPIO.HIGH
+
+    GPIO.setactive_state(18, GPIO.HIGH)
+
+    assert GPIO.getactive_state(18) == GPIO.HIGH
+
+    GPIO.setactive_state(18, GPIO.LOW)
+
+    assert GPIO.getactive_state(18) == GPIO.LOW
+
+    with pytest.raises(ValueError):
+        GPIO.setactive_state(18, "random string")
+
+    # sensible default for inactive channel
+    assert GPIO.getdirection(5) == -1

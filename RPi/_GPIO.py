@@ -13,8 +13,6 @@ from threading import Thread, Event
 
 # TODO Docstrings not appearing properly when using help(GPIO)
 
-# TODO Pull-up/Pull-down resistors??? How to handle
-
 # TODO Some weirdness with the timing of callbacks (might be due to testing hardware)
 
 # === User Facing Data ===
@@ -33,17 +31,62 @@ BCM     = 1
 BOARD   = 2
 
 # Output modes
-LOW  = 0
-HIGH = 1
+LOW  = gpiod.Line.ACTIVE_LOW
+HIGH = gpiod.Line.ACTIVE_HIGH
 
-# PUD modes
-PUD_OFF  = 0
-PUD_UP   = 1
-PUD_DOWN = 2
+_LINE_ACTIVE_STATE_COSNT_TO_FLAG = {
+    LOW: gpiod.LINE_REQ_FLAG_ACTIVE_LOW,
+    HIGH: 0,  # Active High is set by the default flag
+}
 
-# Data directions
-IN  = gpiod.LINE_REQ_DIR_IN
-OUT = gpiod.LINE_REQ_DIR_OUT
+
+# Macro
+def active_flag(const):
+    return _LINE_ACTIVE_STATE_COSNT_TO_FLAG[const]
+
+
+# We map RPi.GPIO PUD modes to libgpiod PUD constants
+PUD_OFF     = gpiod.Line.BIAS_AS_IS
+PUD_UP      = gpiod.Line.BIAS_PULL_UP
+PUD_DOWN    = gpiod.Line.BIAS_PULL_DOWN
+
+# We extend RPi.GPIO with the ability to explicitly disable pull up/down
+# behavior
+PUD_DISABLE = gpiod.Line.BIAS_DISABLE
+
+# libgpiod uses distinct flag values for each line bias constant returned by
+# the gpiod.Line.bias() method. To simplify our translation, we map the latter
+# to the former with the following dictionary
+_LINE_BIAS_CONST_TO_FLAG = {
+    PUD_OFF: 0,  # This behavior is indicated with the defualt flag
+    PUD_UP: gpiod.LINE_REQ_FLAG_BIAS_PULL_UP,
+    PUD_DOWN: gpiod.LINE_REQ_FLAG_BIAS_PULL_DOWN,
+    PUD_DISABLE: gpiod.LINE_REQ_FLAG_BIAS_DISABLE,
+}
+
+
+# Macro
+def bias_flag(const):
+    return _LINE_BIAS_CONST_TO_FLAG[const]
+
+
+# Data directions are line object direction states
+IN  = gpiod.Line.DIRECTION_INPUT
+OUT = gpiod.Line.DIRECTION_OUTPUT
+
+# libgpiod has distinct flag values for each line direction constant returned
+# by the gpiod.Line.direction () method. To simplify our translation, we map
+# the latter to the former with the following dictionary
+_LINE_DIRECTION_CONST_TO_FLAG = {
+    IN: gpiod.LINE_REQ_DIR_IN,
+    OUT: gpiod.LINE_REQ_DIR_OUT,
+}
+
+
+# Macro
+def dir_flag(const):
+    return _LINE_DIRECTION_CONST_TO_FLAG[const]
+
 
 # Request types
 FALLING     = gpiod.LINE_REQ_EV_FALLING_EDGE
@@ -174,6 +217,16 @@ def channel_fix_and_validate(channel_raw):
         return channel_fix_and_validate_board(channel_raw)
 
 
+def channel_valid_or_die(channel):
+    """
+    Validate a channel/pin number
+    Returns the pin number on success otherwise throws a ValueError
+
+        channel        - an integer to be validated as a channel
+    """
+    channel_fix_and_validate(channel)
+
+
 def validate_gpio_dev_exists():
     gpiochips = []
     for root, dirs, files in os.walk('/dev/'):
@@ -275,8 +328,8 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     if direction == IN and initial:
         raise ValueError("initial parameter is not valid for inputs")
 
-    if pull_up_down != PUD_OFF and pull_up_down != PUD_UP and pull_up_down != PUD_DOWN:
-        raise ValueError("Invalid value for pull_up_down - should be either PUD_OFF, PUD_UP or PUD_DOWN")
+    if pull_up_down not in [PUD_OFF, PUD_UP, PUD_DOWN, PUD_DISABLE]:
+        raise ValueError("Invalid value for pull_up_down - should be either PUD_OFF, PUD_UP, PUD_DOWN, or PUD_DISABLE")
 
     # Make the channel data iterable by force
     if not is_iterable(channel):
@@ -286,10 +339,15 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
     for pin in channel:
         pin = channel_fix_and_validate(pin)
 
+    request_flags = 0
+    request_flags |= bias_flag(pull_up_down)
+
+    direction = dir_flag(direction)
+
     for pin in channel:
         _State.lines[pin] = _State.chip.get_line(pin)
         try:
-            _State.lines[pin].request(consumer=_State.chip.name(), type=direction)
+            _State.lines[pin].request(consumer=_State.chip.name(), type=direction, flags=request_flags)
             if initial is not None:
                 _State.lines[pin].set_value(initial)
         except OSError:
@@ -357,6 +415,101 @@ def getmode():
     """
 
     return _State.mode if _State.mode else None
+
+
+def getbias(channel):
+    """
+    Get bias mode of an active channel
+    Returns PUD_OFF, PUD_DOWN, PUD_UP, or PUD disabled if the channel is
+        active or just PUD_OFF if the channel is not active.
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if channel not in _State.lines.keys():
+        return PUD_OFF
+    else:
+        return _State.lines[channel].bias()
+
+
+def setbias(channel, bias):
+    """
+    Set bias of an active channel
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if bias not in [PUD_OFF, PUD_UP, PUD_DOWN, PUD_DISABLE]:
+        raise ValueError("An invalid bias was passed to setbias()")
+
+    current = getbias(channel)
+    if bias != current:
+        flags = bias_flag(bias) | active_flag(getactive_state(channel))
+        _State.lines[channel].set_flags(flags)
+
+
+def getdirection(channel):
+    """
+    Get direction of an active channel
+    Returns HIGH or LOW if the channel is active and -1 otherwise
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if channel not in _State.lines.keys():
+        return -1
+    else:
+        return _State.lines[channel].direction()
+
+
+def setdirection(channel, direction):
+    """
+    Set direction of an active channel
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if direction != IN and direction != OUT:
+        raise ValueError("An invalid direction was passed to setdirection()")
+
+    current = getdirection(channel)
+    if current != -1:
+        if current == IN and direction == OUT:
+            _State.lines[channel].set_direction_output()
+        elif current == OUT and direction == IN:
+            _State.lines[channel].set_direction_input()
+
+
+def getactive_state(channel):
+    """
+    Get direction of an active channel
+    Returns HIGH or LOW if the channel is active and -1 otherwise
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if channel not in _State.lines.keys():
+        return -1
+    else:
+        return _State.lines[channel].active_state()
+
+
+def setactive_state(channel, active_state):
+    """
+    Set the active_state of an active channel
+    """
+
+    channel = channel_fix_and_validate(channel)
+
+    if active_state not in [HIGH, LOW]:
+        raise ValueError("An active state was passed to setactive_state()")
+
+    # NOTE: it would be useful to be able to get the flags integer from libgpiod
+    # I may post a patch
+    current = getactive_state(channel)
+    if active_state != current:
+        flags = bias_flag(getbias(channel)) | active_flag(active_state)
+        _State.lines[channel].set_flags(flags)
 
 
 def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
