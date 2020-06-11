@@ -6,7 +6,7 @@
 
 \title{
 {Functional and Technical Specification for python3-libgpiod-rpi 1.0} \\
-{Revision 1}
+{Revision 2}
 }
 
 
@@ -123,7 +123,7 @@ At a high level, our list of functional requirements for 1.0 is relatively short
 
 In this section, we define the behavior of our API by careful inspection and interpretation of the \texttt{RPi.GPIO} source code \cite{rpigpio}.
 First, we define the core API functions that are accessible via the \texttt{RPi.GPIO} module.
-Then, we describe the Object Oriented Pulse-width Modulation interface accessible via the \texttt{RPi.PWM} module. Finally, we describe some static data fields and debug functions.
+Then, we describe the Object Oriented Pulse-width Modulation interface accessible via the \texttt{RPi.GPIO.PWM} class. Finally, we describe some static data fields and debug functions.
 
 \subsection{Core \texttt{RPi.GPIO} API} \label{coreapi}
  
@@ -372,19 +372,19 @@ Then, the 0-ary callable objects stored in the list \texttt{\_State.lines[channe
     % Also, should this spec include OSError exceptions we introduce?
 \end{itemize}
 
-\subsection{Class RPi.PWM}
+\subsection{Class \texttt{RPi.GPIO.PWM}} \label{pwm}
     
-RPi.PWM is a Pulse-width Modulation (PwM) class. Object methods follow.
+\texttt{RPi.GPIO.PWM} is a Pulse-width Modulation (PwM) class. Object methods follow.
 
 \medskip \medskip
 
-\noindent RPi.PWM.\textbf{ChageDutyCycle}(dutycycle)
+\noindent \texttt{RPi.GPIO.PWM}.\textbf{ChageDutyCycle}(dutycycle)
         
 Change the duty cycle of the PwM channel to \texttt{dutycycle}
         
 \textit{parameters}:
 \begin{enumerate}      
-        \item dutycycle --- A value between 0.0 and 100.0
+        \item dutycycle --- percentage of pulse period to output high voltage
 \end{enumerate}
  
  
@@ -393,13 +393,13 @@ Change the duty cycle of the PwM channel to \texttt{dutycycle}
     \item ValueError --- Invalid duty cycle
 \end{itemize}
 
-\noindent RPi.PWM.\textbf{ChangeFrequency}(frequency)
+\noindent \texttt{RPi.GPIO.PWM}.\textbf{ChangeFrequency}(frequency)
         
 Change the frequency the PwM channel to \texttt{frequency}
         
 \textit{parameters}:
 \begin{enumerate}      
-        \item frequency --- A positive float value
+        \item frequency --- pulse periodicity in hz
 \end{enumerate}
  
  
@@ -408,9 +408,9 @@ Change the frequency the PwM channel to \texttt{frequency}
     \item ValueError --- Invalid frequency value
 \end{itemize}
 
-\noindent RPi.PWM.\textbf{\_\_init\_\_}(channel, frequency)
+\noindent \texttt{RPi.GPIO.PWM}.\textbf{\_\_init\_\_}(channel, frequency)
         
-Initialize a new PwM object. Commonly invoked via: \texttt{RPi.PWM(channel, frequency)}
+Initialize a new PwM object. Commonly invoked via: \texttt{RPi.GPIO.PWM(channel, frequency)}
 
 \textit{parameters}:
 \begin{enumerate}
@@ -427,7 +427,7 @@ Initialize a new PwM object. Commonly invoked via: \texttt{RPi.PWM(channel, freq
     % TODO
 \end{itemize}
 
-\noindent RPi.PWM.\textbf{start}(dutycycle)
+\noindent \texttt{RPi.GPIO.PWM}.\textbf{start}(dutycycle)
         
 Start software PwM on the channel specified in \texttt{\_\_init\_\_}.
 
@@ -442,7 +442,7 @@ Start software PwM on the channel specified in \texttt{\_\_init\_\_}.
     \item ValueError --- Invalid duty cycle
 \end{itemize}
 
-\noindent RPi.PWM.\textbf{stop}()
+\noindent \texttt{RPi.GPIO.PWM}.\textbf{stop}()
         
 Stop software PwM on the channel specified in \texttt{\_\_init\_\_}.
 
@@ -632,7 +632,7 @@ A list of the channels on which events have recently occurred. Will be invariant
 
 A list of \texttt{\_Line} objects corresponding to each GPIO channel. \texttt{\_Line} objects are internal to this library and contain corresponding \texttt{gpiod.Line} objects and associated data.
 
-\textit{Default value:} \texttt{[\_Line(channel) for channel in range(chip\_get\_num\_lines()))]}
+\textit{Default value:} \texttt{[\_Line(channel) for channel in range(chip\_get\_num\_lines())]}
 
 \subsection{Data Design: Class \_Line}
 
@@ -649,10 +649,24 @@ Initialize a new \_Line object. Invoked by \texttt{Reset}.
         \item channel --- GPIO channel
 \end{enumerate}
  
+\noindent \_Line.\textbf{thread\_start}(target\_type, args)
+
+[LOCK REQUIRED] Start a new thread on this channel to either poll for events or do pulse-width modulation.
+Returns True if a thread is sucessfully started and False otherwise.
+
+\textit{parameters}:
+\begin{enumerate}
+	\item target\_type --- one of either \texttt{\_line\_thread\_poll} or \texttt{\_line\_thread\_pwm} to specify thread type
+	\item args --- a tuple of arguments to pass to the entry point for the new thread
+\end{enumerate}
+
+\noindent \_Line.\textbf{thread\_stop}()
+
+[LOCK REQUIRED] Stop the thread running on this channel if one exists.
 
 \noindent \_Line.\textbf{cleanup}()
       
-Reset the internal state of the object to initial state. Kills the channel's poll thread if one is running. Clears the list of callbacks. Sets line mode to \texttt{\_line\_mode\_none}.
+[LOCK REQUIRED] Reset the internal state of the object to initial state. Kills the channel's poll thread if one is running. Clears the list of callbacks. Sets line mode to \texttt{\_line\_mode\_none}.
 
 \noindent \_Line.\textbf{mode\_request}(mode, flags)
 
@@ -690,7 +704,7 @@ A locking primitive of type \texttt{threading.Lock}. Used internally by the lock
 
 \noindent \_Line.\textbf{thread}
 
-An entry of type \texttt{\_PollThread} used to represent a poll thread that checks for edge events on a pin.
+An entry of type \texttt{\_LineThread} used to represent a poll thread that checks for edge events on a pin.
 
 \textit{Default value:} None
 
@@ -707,27 +721,28 @@ A timestamp (from \texttt{time.time()}) of the last edge event detected on that 
 \textit{Default value:} None
 
 
-\subsection{Data Design: Class \_PollThread}
+\subsection{Data Design: Class \_LineThread}
 
 A subclass of \texttt{threading.Thread} with basic stopability. 
 
 \medskip
 
-\noindent \_PollThread.\textbf{\_\_init\_\_}(channel, target, args)
+\noindent \_LineThread.\textbf{\_\_init\_\_}(channel, target\_type, args)
         
-Create a new instance of this class on \texttt{channel} that will call \texttt{target(*args)} when the poll thread is started via \texttt{line\_start\_poll}.
+Create a new instance of this class on \texttt{channel} that will call \texttt{target(*args)} when the line thread is started via \texttt{line\_start\_poll} or \texttt{line\_start\_pwm}
 
 \textit{parameters}:
 \begin{enumerate}
         \item channel --- GPIO channel
-        \item target --- the callable entry point to the poll thread
+	\item target\_type --- one of either \texttt{\_line\_thread\_poll} or \texttt{\_line\_thread\_pwm} to specify thread type
         \item args --- arguments that will be passed to target at invocation
 \end{enumerate}
  
 
-\noindent \_PollThread.\textbf{kill}()
+\noindent \_LineThread.\textbf{kill}()
 
-[LOCK REQUIRED] Stop a poll thread by setting the stop event and joining the thread until completion. The lock is dropped temporarily during the call to join() to allow the poll thread to finish its last iteration.
+[LOCK REQUIRED] Stop a \_LineThread's thread by setting the stop event and joining the thread until completion.
+The lock is dropped temporarily during the call to join() to allow the thread to finish its last iteration.
 
 \subsection{The  \texttt{channel\_} and \texttt{chip\_} interfaces}
 
@@ -883,6 +898,16 @@ This functions returns a Boolean that represents the authority on whether a chan
         \item channel --- GPIO channel
 \end{enumerate}
 
+\noindent line\_\textbf{is\_pwm}(channel)
+
+Returns True if a \texttt{GPIO.PWM} object has been created on \texttt{channel}, otherwise returns False.
+
+\textit{parameters}:
+\begin{enumerate}      
+        \item channel --- GPIO channel
+        \item dutycycle --- percentage of pulse period to output high voltage
+\end{enumerate}
+
 \noindent line\_\textbf{kill\_poll}(channel)
 
 \noindent line\_\textbf{kill\_poll\_lock}(channel)
@@ -896,9 +921,56 @@ Stos poll thread running on \texttt{channel} by calling \texttt{\_PollThread.kil
         \item channel --- GPIO channel
 \end{enumerate}
 
-\noindent line\_\textbf{poll\_should\_die}(channel)
+\noindent line\_\textbf{poll\_start}(channel, edge, callback, bouncetime)
 
-Return the value \texttt{\_State.lines[channel].thread.killswitch.is\_set()}. Used by a poll thread when it considers suicide.
+[LOCKS channel] Kick off a new poll thread from the main thread.
+Creates and starts new \_PollThread. Adds any specified callbacks to \texttt{\_State.lines[channel].callbacks}. 
+
+\textit{parameters}:
+\begin{enumerate}      
+        \item channel --- GPIO channel
+        \item edge --- any one of RISING, FALLING, or BOTH to specify types of events poll for
+        \item callback --- A 0-ary callable object
+        \item bouncetime --- cooldown time in milliseconds for invoking the callback functions
+\end{enumerate}
+
+\noindent line\_\textbf{pwm\_set\_dutycycle}(channel, dutycycle)
+
+\noindent line\_\textbf{pwm\_set\_dutycycl\_lock}(channel, dutycycle)
+
+[first: LOCK REQUIRED, second: LOCKS channel]
+Set the dutycycle value for pulse-width modulation.
+
+\textit{parameters}:
+\begin{enumerate}      
+        \item channel --- GPIO channel
+        \item dutycycle --- percentage of pulse period to output high voltage
+\end{enumerate}
+
+\noindent line\_\textbf{pwm\_set\_frequency}(channel, frequency)
+
+[LOCKS channel] Set the pulse frequency value for pulse-width modulation.
+
+\textit{parameters}:
+\begin{enumerate}      
+        \item channel --- GPIO channel
+        \item frequency --- pulse periodicity in hz
+\end{enumerate}
+
+\noindent line\_\textbf{pwm\_start}(channel, dutycycle)
+
+[LOCKS channel] Start pulse-with modulation on \texttt{channel}.
+Returns true if successful and false otherwise.
+
+\textit{parameters}:
+\begin{enumerate}      
+        \item channel --- GPIO channel
+        \item dutycycle --- percentage of pulse period to output high voltage
+\end{enumerate}
+
+\noindent line\_\textbf{pwm\_stop}(channel)
+
+Stop a pulse-width modulation running on \texttt{channel} if it exists.
 
 \textit{parameters}:
 \begin{enumerate}      
@@ -937,21 +1009,17 @@ Calls \texttt{gpiod.Line.set\_value(value)} on \texttt{channel}.
         \item value --- new value for GPIO channel
 \end{enumerate}
 
-\noindent line\_\textbf{start\_poll}(channel, edge, callback, bouncetime)
+\noindent line\_\textbf{thread\_should\_die}(channel)
 
-[LOCKS channel] Kick off a new poll thread from the main thread.
-Creates and starts new \_PollThread. Adds any specified callbacks to \texttt{\_State.lines[channel].callbacks}. 
+Return the value \texttt{\_State.lines[channel].thread.killswitch.is\_set()}. Used by a line thread when it considers suicide.
 
 \textit{parameters}:
 \begin{enumerate}      
         \item channel --- GPIO channel
-        \item edge --- any one of RISING, FALLING, or BOTH to specify types of events poll for
-        \item callback --- A 0-ary callable object
-        \item bouncetime --- cooldown time in milliseconds for invoking the callback functions
 \end{enumerate}
 
 
-\subsection{Data Design: Line Modes} \label{linemodes}
+\subsection{Data Design: Line Modes and Line threads} \label{linemodes}
 
 The following constants are internal to the library and their external exposure is undefined. The reason for the distinction between ``Values'' and ``Events'' mode types is that the underlying \texttt{ioctl(2)} syscalls made by \texttt{libgpiod} actually request different access permissions for that GPIO channel depending on this choice.
 
@@ -982,6 +1050,18 @@ Events mode for both rising and falling edge events. Detects all events.
 \noindent \textbf{\_line\_mode\_as\_is}
 
 Events as-is mode. As of yet undefined.
+
+\noindent \textbf{\_line\_thread\_poll}
+
+A thread type to represent the lack of a thread
+
+\noindent \textbf{\_line\_thread\_poll}
+
+A thread type that will poll for events on a channel
+
+\noindent \textbf{\_line\_thread\_pwm}
+
+A thread type that will execute software pulse-width modulation on a channel
 
 \section{Requirements Summary for version 1.0}
 

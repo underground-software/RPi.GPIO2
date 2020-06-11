@@ -1,20 +1,14 @@
+#
+# Core implementation of python3-libgpiod-rpi
+# By Joel Savitz and Fabrizio D'Angelo
+# This is free software, see LICENSE for details
+#
 import gpiod
 from warnings import warn
 import os
 import sys
 import time
 from threading import Thread, Event, Lock
-
-#
-# | |_ ___   __| | ___
-# | __/ _ \ / _` |/ _ \
-# | || (_) | (_| | (_) |
-#  \__\___/ \__,_|\___/
-
-# TODO Docstrings not appearing properly when using help(GPIO)
-
-# TODO Some weirdness with the timing of callbacks (might be due to testing hardware)
-
 
 # BCM to Board mode conversion table
 pin_to_gpio_rev3 = [
@@ -59,9 +53,9 @@ PUD_DISABLE = gpiod.Line.BIAS_DISABLE
 # the gpiod.Line.bias() method. To simplify our translation, we map the latter
 # to the former with the following dictionary
 _LINE_BIAS_CONST_TO_FLAG = {
-    PUD_OFF: 0,  # This behavior is indicated with the defualt flag
-    PUD_UP: gpiod.LINE_REQ_FLAG_BIAS_PULL_UP,
-    PUD_DOWN: gpiod.LINE_REQ_FLAG_BIAS_PULL_DOWN,
+    PUD_OFF:    0,  # This behavior is indicated with the default flag
+    PUD_UP:     gpiod.LINE_REQ_FLAG_BIAS_PULL_UP,
+    PUD_DOWN:   gpiod.LINE_REQ_FLAG_BIAS_PULL_DOWN,
     PUD_DISABLE: gpiod.LINE_REQ_FLAG_BIAS_DISABLE,
 }
 
@@ -111,14 +105,20 @@ _LINE_MODE_TO_DIR_CONST = {
     _line_mode_as_is:   -662,
 }
 
+# line thread types, these threads can be run on an individual line
+_line_thread_none       = 0
+_line_thread_poll       = 1 << 1
+_line_thread_pwm        = 1 << 2
 
 # === Internal Data ===
 
-class _PollThread(Thread):
-    def __init__(self, channel, target, args):
-        super().__init__(target=poll_thread, args=args)
+
+class _LineThread(Thread):
+    def __init__(self, channel, target_type, args):
+        target = _LINE_THREAD_TYPE_TO_TARGET[target_type]
+        super().__init__(target=target, args=args)
         self.killswitch = Event()
-        self.target = target
+        self.target_type = target_type
         self.channel = channel
 
     def kill(self):
@@ -130,13 +130,33 @@ class _PollThread(Thread):
 
 class _Line:
     def __init__(self, channel):
-        self.channel    = channel
-        self.line       = _State.chip.get_line(channel)
-        self.mode       = _line_mode_none
-        self.lock       = Lock()
-        self.thread     = None
-        self.callbacks  = []
-        self.timestamp  = None
+        self.channel        = channel
+        self.line           = _State.chip.get_line(channel)
+        self.mode           = _line_mode_none
+        self.lock           = Lock()
+        self.thread         = None
+        self.thread_type    = _line_thread_none
+        self.callbacks      = []
+        self.dutycycle      = -1
+        self.frequency      = -1
+        self.timestamp      = None
+
+    def thread_start(self, thread_type, args):
+        Dprint("ARGS TYPE:", args, type(args))
+        self.thread = _LineThread(self.channel, thread_type, args)
+        if self.thread:
+            DCprint(self.channel, "start thread type {} ".format(thread_type))
+            self.thread.start()
+            self.thread_type = thread_type
+        else:
+            DCprint(self.channel, "FAILED to start thread on channel {}".format(self.channel))
+
+        return self.thread is not None
+
+    def thread_stop(self):
+        self.thread.kill()
+        self.thread = None
+        self.thread_type = _line_thread_none
 
     def cleanup(self):
         if line_is_poll(self.channel):
@@ -145,8 +165,10 @@ class _Line:
         if self.line.is_requested():
             self.line.release()
         # We don't want to affect bouncetime handling if channel is used again
-        self.timestamp = None
+        self.dutycycle = -1
+        self.frequency = -1
         self.callbacks = []
+        self.timestamp = None
         self.mode = _line_mode_none
 
     def mode_request(self, mode, flags):
@@ -225,13 +247,13 @@ def is_all_ints(data):
         else True
 
 
-def is_all_bools(data):
+def is_all_bools_or_directions(data):
     if not is_iterable(data):
         data = [data]
     if len(data) < 1:
         return False
-    return all([isinstance(elem, bool) for elem in data]) \
-        if not isinstance(data, bool)\
+    return all([(isinstance(elem, bool) or elem in [HIGH, LOW]) for elem in data]) \
+        if not (isinstance(data, bool) or data in [HIGH, LOW])\
         else True
 
 
@@ -419,30 +441,92 @@ def line_set_flags(channel, flags):
     end_critical_section(channel, msg="set flags")
 
 
-def line_start_poll(channel, edge, callback, bouncetime):
+def line_poll_start(channel, edge, callback, bouncetime):
 
     begin_critical_section(channel, msg="start poll")
-    # Start a thread that polls for events on the pin and create a list of event callbacks
-    _State.lines[channel].thread = _PollThread(channel, target=poll_thread, args=(channel, edge, callback, bouncetime))
 
     if callback:
         _State.lines[channel].callbacks.append(callback)
+    # Start a thread that polls for events on the pin and create a list of event callbacks
+    # OLD way
+    #_State.lines[channel].thread = _LineThread(channel, _line_thread_poll, args=(channel, edge, callback, bouncetime))
+    _State.lines[channel].thread_start(_line_thread_poll, args=(channel, edge, callback, bouncetime))
 
-    # Start the edge detection thread
-    _State.lines[channel].thread.start()
+    # Start the edge detection thread FIXME already started
+    #_State.lines[channel].thread_start()
 
     end_critical_section(channel, msg="start poll")
 
 
+def line_pwm_start(channel, dutycycle):
+    # The user would first call init to set
+    # Line.frequency to a non-negative (valid) value
+    # and so we validate that we are in a state
+    # where the user has called PWM.__init__()
+    # but there is not yet a thread running
+    if not line_is_pwm(channel) and \
+            line_pwm_get_frequency(channel) != -1:
+        begin_critical_section(channel, msg="pwm start")
+        line_pwm_set_dutycycle(channel, dutycycle)
+        _State.lines[channel].thread_start(_line_thread_pwm, args=(channel,))
+        end_critical_section(channel, msg="pwm start")
+        return line_is_pwm(channel)
+    # If the line is already running a PwM thread
+    # return True, but if there is no thread running
+    # and the user tried to call PWM.start() before
+    # calling PWM.__init__() somewhow, then
+    # return False and tell them to call init.
+    if line_is_pwm(channel):
+        return True
+    else:
+        warn("invalid call to pwm_start(). Did you call PWM.__init__() on this channel?")
+        return False
+
+
+def line_pwm_stop(channel):
+    if line_is_pwm(channel):
+        begin_critical_section(channel, msg="pwm stop")
+        _State.lines[channel].thread_stop()
+        end_critical_section(channel, msg="pwm stop")
+
+
+def line_pwm_set_dutycycle(channel, dutycycle):
+    _State.lines[channel].dutycycle = dutycycle
+
+
+def line_pwm_set_dutycycle_lock(channel, dutycycle):
+    begin_critical_section(channel, msg="set dutycycle")
+    line_pwm_set_dutycycle(channel, dutycycle)
+    end_critical_section(channel, msg="set dutycycle")
+
+
+def line_pwm_get_dutycycle(channel):
+    return _State.lines[channel].dutycycle
+
+
+def line_pwm_set_frequency(channel, frequency):
+    begin_critical_section(channel, msg="set frequency")
+    _State.lines[channel].frequency = frequency
+    end_critical_section(channel, msg="set frequency")
+
+
+def line_pwm_get_frequency(channel):
+    return _State.lines[channel].frequency
+
+
+def line_is_pwm(channel):
+    DCprint(channel, "checking if channel is pwm:", _State.lines[channel].thread_type == _line_thread_pwm)
+    return _State.lines[channel].thread_type == _line_thread_pwm
+
+
 def line_is_poll(channel):
-    DCprint(channel, "checking if channel is poll:", _State.lines[channel].thread is not None)
-    return _State.lines[channel].thread is not None
+    DCprint(channel, "checking if channel is poll:", _State.lines[channel].thread_type == _line_thread_poll)
+    return _State.lines[channel].thread_type == _line_thread_poll
 
 
 # Requires lock
 def line_kill_poll(channel):
-    _State.lines[channel].thread.kill()
-    _State.lines[channel].thread = None
+    _State.lines[channel].thread_stop()
 
 
 def line_kill_poll_lock(channel):
@@ -452,14 +536,15 @@ def line_kill_poll_lock(channel):
 
 
 def line_set_value(channel, value):
+    DCprint(channel, "Set value to", value)
     _State.lines[channel].line.set_value(value)
 
 
 def line_get_value(channel):
     _State.lines[channel].line.get_value()
 
-# === Interface Functions ===
 
+# === Interface Functions ===
 
 def setmode(mode):
     """
@@ -557,11 +642,18 @@ def output(channel, value):
     for chan in channel:
         chan = channel_fix_and_validate(chan)
 
-    if (not is_all_ints(value)) and (not is_all_bools(value)):
+    if (not is_all_ints(value)) and (not is_all_bools_or_directions(value)):
         raise ValueError("Value must be an integer/boolean or a list/tuple of integers/booleans")
 
     if not is_iterable(value):
         value = [value]
+
+    # Normalize the value argument
+    for i in range(len(value)):
+        if value[i] == HIGH:
+            value[i] = True
+        if value[i] == LOW:
+            value[i] = False
 
     if len(channel) != len(value):
         raise RuntimeError("Number of channel != number of value")
@@ -705,7 +797,8 @@ def wait_for_edge_validation(edge, bouncetime, timeout):
         raise ValueError("Bouncetime must be greater than 0")
 
     if timeout and timeout < 0:
-        raise ValueError("Timeout must be greater than or equal to 0")  # error semantics differ from RPi.GPIO
+        # error semantics differ from RPi.GPIO
+        raise ValueError("Timeout must be greater than or equal to 0")
 
 
 def wait_for_edge(channel, edge, bouncetime=None, timeout=0):
@@ -762,7 +855,7 @@ def line_event_wait(channel, bouncetime, timeout):
     elif _State.lines[channel].line.event_wait(sec=timeout_sec, nsec=timeout_nsec):
         _State.lines[channel].timestamp = time.time()
         if channel not in _State.event_ls:
-            # Ensure no double appends
+            # Ensure no double appends. FIXME: should this be done outside of a poll thread?
             _State.event_ls.append(channel)
         event = _State.lines[channel].line.event_read()
 
@@ -777,15 +870,18 @@ def line_event_wait(channel, bouncetime, timeout):
     return ret
 
 
-def line_poll_should_die(channel):
+def line_thread_should_die(channel):
     return _State.lines[channel].thread.killswitch.is_set()
+
+
+TEN_MILLISECONDS_IN_SECONDS = 0.0010
 
 
 def line_do_poll(channel, bouncetime, timeout):
 
     while True:
         begin_critical_section(channel, msg="do poll")
-        if line_poll_should_die(channel):
+        if line_thread_should_die(channel):
             end_critical_section(channel, msg="do poll exit")
             break
         if line_event_wait(channel, bouncetime, timeout):
@@ -793,20 +889,44 @@ def line_do_poll(channel, bouncetime, timeout):
             for fn in callbacks():
                 fn()
         end_critical_section(channel, msg="do poll")
-        time.sleep(0.01)
+        time.sleep(TEN_MILLISECONDS_IN_SECONDS)
 
 
 def poll_thread(channel, edge, callback, bouncetime):
 
-    # This implements BOARD mode
-    channel = channel_fix_and_validate(channel)
-
-    timeout = 10
+    # FIXME: this is arbitrary
+    timeout = 10  # milliseconds
     wait_for_edge_validation(edge, bouncetime, timeout)
 
     DCprint(channel, "launch poll thread")
     line_do_poll(channel, bouncetime, timeout)
     DCprint(channel, "terminate poll thread")
+
+
+# NOTE: RPi.GPIO specifies:
+# Default to 1 kHz frequency 0.0% dutycycle
+# but interface functions require explicit arguments
+def pwm_thread(channel):
+    DCprint(channel, "begin PwM thread with dutycycle {}% and frequency {} Hz".format(_State.lines[channel].dutycycle,
+                                                                                      _State.lines[channel].frequency))
+    while True:
+        begin_critical_section(channel, msg="do pwm")
+        if line_thread_should_die(channel):
+            end_critical_section(channel, msg="do pwm exit")
+            break
+        if _State.lines[channel].dutycycle > 0:
+            line_set_value(channel, True)
+            DCprint(channel, "PwM: ON")
+            # PwM calculation for high voltage part of period:
+            time.sleep(1 / _State.lines[channel].frequency * (_State.lines[channel].dutycycle / 100.0))
+        if _State.lines[channel].dutycycle < 100:
+            line_set_value(channel, False)
+            DCprint(channel, "PwM: OFF")
+            # PwM calculation for low voltage part of period:
+            time.sleep(1 / _State.lines[channel].frequency * (1.0 - _State.lines[channel].dutycycle / 100.0))
+        end_critical_section(channel, msg="do pwm")
+        time.sleep(TEN_MILLISECONDS_IN_SECONDS)
+        # arbitrary time to sleep without lock, TODO: may interfere with overall timing of PwM but it's rough anyway
 
 
 def add_event_detect(channel, edge, callback=None, bouncetime=None):
@@ -835,7 +955,7 @@ def add_event_detect(channel, edge, callback=None, bouncetime=None):
         raise ValueError("Bouncetime must be greater than 0")
 
     line_set_mode(channel, edge)
-    line_start_poll(channel, edge, callback, bouncetime)
+    line_poll_start(channel, edge, callback, bouncetime)
 
 
 def add_event_callback(channel, callback):
@@ -932,5 +1052,65 @@ def gpio_function(channel):
     return get_gpio_number(channel)
 
 
+class PWM:
+    def __init__(self, channel, frequency):
+        channel = channel_fix_and_validate(channel)
+
+        if line_get_mode(channel) != _line_mode_out:
+            raise RuntimeError("You must setup() the GPIO channel as an output first")
+
+        # If frequency is not -1 then we have called init() but not yet called start() so raise exception
+        if line_is_pwm(channel) or line_pwm_get_frequency(channel) != -1:
+            raise RuntimeError("A PWM object already exists for this GPIO channel")
+
+        if frequency <= 0.0:
+            raise ValueError("frequency must be greater than 0.0")
+        self.channel = channel
+        line_pwm_set_frequency(channel, frequency)
+
+    def start(self, dutycycle):
+        """
+        Start software PWM
+        dutycycle - the duty cycle (0.0 to 100.0)
+        """
+        if dutycycle < 0.0 or dutycycle > 100.0:
+            raise ValueError("dutycycle must have a value from 0.0 to 100.0")
+
+        line_pwm_start(self.channel, dutycycle)
+
+    def stop(self):
+        """
+        Stop software PWM
+        """
+        line_pwm_stop(self.channel)
+
+    def ChangeDutyCycle(self, dutycycle):
+        """
+        Change the duty cycle
+        dutycycle - between 0.0 and 100.0
+        """
+        if dutycycle < 0.0 or dutycycle > 100.0:
+            raise ValueError("dutycycle must have a value from 0.0 to 100.0")
+
+        line_pwm_set_dutycycle_lock(self.channel, dutycycle)
+
+    def ChangeFrequency(self, frequency):
+        """
+        Change the frequency
+        frequency - frequency in Hz (freq > 1.0)
+        """
+
+        if frequency <= 0.0:
+            raise ValueError("frequency must be greater than 0.0")
+
+        line_pwm_set_frequency(self.channel, frequency)
+
+
 # Initialize the library with a reset
 Reset()
+
+# line thead type to callable entry point mapping
+_LINE_THREAD_TYPE_TO_TARGET = {
+    _line_thread_poll:  poll_thread,
+    _line_thread_pwm:   pwm_thread,
+}

@@ -39,3 +39,8 @@ of the library via `pip install -e .` in the repository root.
 The libgpiod python bindings must be installed and accessible from the development environment.
 This package is not available via `pip install` and must be installed using the system package
 manager.
+
+To view the locations and surrounding lines of all TODOs, FIXMEs, and NOTEs in the codebase,
+use the `notes.sh` script included with this project.
+
+This project is free software, please refer to our [LICENSE](LICENSE) for further detail.
