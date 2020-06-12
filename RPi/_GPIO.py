@@ -20,10 +20,19 @@ pin_to_gpio_rev3 = [
 
 # === User Facing Data ===
 
+# Exact values for constants taken from RPi.GPIO source code
+# file: source/common.h
+
 # [API] Pin numbering modes
-UNKNOWN = 0
-BCM     = 1
-BOARD   = 2
+UNKNOWN     = -1
+BCM         = 11
+BOARD       = 10
+
+# [API] Random constants
+SERIAL      = 40
+SPI         = 41
+I2C         = 42
+HARD_PWM    = 43
 
 # Output modes
 LOW  = gpiod.Line.ACTIVE_LOW
