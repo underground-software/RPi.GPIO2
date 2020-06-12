@@ -40,6 +40,10 @@ The libgpiod python bindings must be installed and accessible from the developme
 This package is not available via `pip install` and must be installed using the system package
 manager.
 
+To enable access non-root access to the gpio pins, use the provided `non_root_permission.sh`
+script. Upon successful execution, any user in Linux user group 'gpio' will be able to access
+the gpio pins via this library.
+
 To view the locations and surrounding lines of all TODOs, FIXMEs, and NOTEs in the codebase,
 use the `notes.sh` script included with this project.
 
