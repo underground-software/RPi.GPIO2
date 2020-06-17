@@ -76,10 +76,10 @@ def test_validate_pin_or_die():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BOARD)
     with pytest.raises(ValueError):
-        channel = GPIO.channel_valid_or_die(-666) # NOQA
+        channel = GPIO.channel_valid_or_die(-666)   # NOQA
 
     with pytest.raises(ValueError):
-        channel = GPIO.channel_valid_or_die(1) # NOQA
+        channel = GPIO.channel_valid_or_die(41)     # NOQA
 
 
 def test_setmode():
@@ -383,12 +383,22 @@ def test_gpio_function():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
 
-    assert GPIO.gpio_function(16) == 16
+    assert GPIO.gpio_function(18) == GPIO.UNKNOWN
+
+    GPIO.setup(18, GPIO.OUT)
+    assert GPIO.gpio_function(18) == GPIO.OUT
+    GPIO.setup(18, GPIO.IN)
+    assert GPIO.gpio_function(18) == GPIO.IN
 
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BOARD)
 
-    assert GPIO.gpio_function(16) == 11
+    assert GPIO.gpio_function(12) == GPIO.UNKNOWN
+
+    GPIO.setup(12, GPIO.OUT)
+    assert GPIO.gpio_function(12) == GPIO.OUT
+    GPIO.setup(12, GPIO.IN)
+    assert GPIO.gpio_function(12) == GPIO.IN
 
 
 def test_setdebuginfo():
@@ -400,6 +410,8 @@ def test_setdebuginfo():
     GPIO_DEVEL.setdebuginfo(True)
 
     assert GPIO_DEVEL.State_Access().debuginfo is True
+
+    GPIO_DEVEL.setdebuginfo(False)
 
 
 def test_bias():
@@ -524,4 +536,16 @@ def test_cleanup():
     GPIO_DEVEL.Reset()
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(21, GPIO.OUT)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.cleanup(["foo"])
+    assert "Channel must be an integer or list/tuple of integers" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        GPIO.cleanup(-1)
+    assert "is invalid" in str(e.value)
+
+    GPIO.cleanup(21)
+    GPIO.cleanup((18, 21))
+
     GPIO_DEVEL.Reset()

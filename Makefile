@@ -1,9 +1,12 @@
+# Makefile to automate common testing procedures for python3-libgpiod-rpi
+# By Joel Savitz
+# This is free software, see LICENSE for details
+
 all: test
 
-test: unit-cov style
-#@echo "MAKE TEST PASS"
+test: test-cov style
 
-unit-cov:
+test-cov:
 	@bash test-cov.sh -m && echo "FUNTIONAL PASS" || echo "FAILURE IN UNIT TEST"
 
 style:

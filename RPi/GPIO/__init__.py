@@ -1,7 +1,49 @@
-# The extended RPi.GPIO API
-from RPi._GPIO import setup, cleanup, output, input, setmode, getmode, add_event_detect, remove_event_detect, event_detected, \
-    add_event_callback, wait_for_edge, gpio_function, setwarnings, \
-    getbias, setbias, getdirection, setdirection, getactive_state, setactive_state, \
-    channel_valid_or_die, \
-    BCM, BOARD, UNKNOWN, IN, OUT, RISING, FALLING, BOTH, PUD_UP, PUD_DOWN, PUD_OFF, PUD_DISABLE, \
-    HIGH, LOW, PWM, I2C, SPI, HARD_PWM, SERIAL
+"""
+The RPi.GPIO API
+Originally created by Ben Croston
+Reimplemented and extended by Joel Savitz and Fabrizio D'Angelo
+This is free software, see LICENSE for details
+"""
+
+from RPi.core import\
+    BCM,\
+    BOARD,\
+    BOTH,\
+    FALLING,\
+    HARD_PWM,\
+    HIGH,\
+    I2C,\
+    IN,\
+    LOW,\
+    OUT,\
+    PUD_DISABLE,\
+    PUD_DOWN,\
+    PUD_OFF,\
+    PUD_UP,\
+    PWM,\
+    RISING,\
+    RPI_INFO,\
+    RPI_REVISION,\
+    SPI,\
+    UNKNOWN,\
+    VERSION,\
+    add_event_callback,\
+    add_event_detect,\
+    channel_valid_or_die,\
+    cleanup,\
+    event_detected, \
+    getactive_state,\
+    getbias,\
+    getdirection,\
+    getmode,\
+    gpio_function,\
+    input,\
+    output,\
+    remove_event_detect,\
+    setactive_state,\
+    setbias,\
+    setdirection,\
+    setmode,\
+    setup,\
+    setwarnings,\
+    wait_for_edge

@@ -1,2 +1,2 @@
 [report]
-include = RPi/_GPIO.py
+include = RPi/core.py
