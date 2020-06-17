@@ -1,12 +1,12 @@
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{verbatim, hyphenat}
 
 \title{
-{Functional and Technical Specification for python3-libgpiod-rpi 1.0} \\
-{Revision 2}
+{python3-libgpiod-rpi 1.0} \\ {Functional and Technical Specification } \\
+{\normalsize Revision 2}
 }
 
 
@@ -22,11 +22,15 @@ This document specifies the functional requirements and and technical implementa
 
 
 \subsection{Scope}
-This document specifies the requirements for version 1.0 of python3-libgpiod-rpi. We may release minor versions in the form of 0.x that partially satisfy this spec. This document does \textit{not} specify features that extend the \texttt{RPi.GPIO} interface, in fact, we discourage extensions to the existing API in version 1.0 unless absolutely necessary.
+This document specifies the requirements for version 1.0 of python3-libgpiod-rpi.
+We may release minor versions in the form of 0.x that partially satisfy this spec.
+This document does \textit{not} specify features that extend the \texttt{RPi.GPIO}
+interface\footnote{With the exception of \texttt{channel\_valid\_or\_die}(), the addition of which is basically negligible}, in fact, we discourage extensions to the existing API
+in version 1.0 unless absolutely necessary.
 
 
 \subsection{Overview}
-We begin with a a discussion of the problem and our proposed solution. Then, we define first the high-level functional requirements for version 1.0 and then what each API function should do and not do. Finally, we give a high-level description of the data structures and algorithms used to implement the system.
+We begin with a discussion of the problem and our proposed solution. Then, we define first the high-level functional requirements for version 1.0 and then what each API function should do and not do. Finally, we give a high-level description of the data structures and algorithms used to implement the system.
 
 
 \subsection{Definitions and Acronyms}
@@ -175,9 +179,31 @@ Enable detection of edge events for some GPIO channel.
     \item ValueError --- Invalid channel, edge is not one of RISING, FALLING, or BOTH,  or a negative bouncetime is specified
 \end{itemize}
 
+\noindent \texttt{RPi.GPIO}.\textbf{channel\_valid\_or\_die}(channel)
+
+Validate \texttt{channel} using the current numbering mode.
+
+If the channel is valid, the function returns with no effect.
+If the channel is invalid, a \texttt{ValueError} exception is raised.
+
+See getmode()/setmode() in section \ref{coreapi} for more information about numbering modes.
+
+\textit{parameters}:
+\begin{enumerate}      
+    \item channel --- GPIO channel
+\end{enumerate}
+ 
+\textit{exceptions}:
+\begin{itemize}
+    \item ValueError --- Invalid channel
+\end{itemize}
+
 \noindent \texttt{RPi.GPIO}.\textbf{cleanup}([channel])
 
 Cleans up library state. Resets all GPIO lines that have been used by this program to INPUT with neither PUD\_UP or PUD\_DOWN set nor event detection enabled on the line. When called with no arguments, this function targets every channel, otherwise, it targets only the channels specified. Subsequent to the actions of cleanup() on a channel, one must pass it to setup() to use it again.
+
+This function is automatically invoked with no parameters
+upon terminaton of a python interpreter using this module.
 
 \textit{parameters}:
 \begin{enumerate}      
@@ -252,6 +278,7 @@ Get the current value of the GPIO line specified by \texttt{channel}. Returns on
 \noindent \texttt{RPi.GPIO}.\textbf{output}(channel)
         
 Set the value of an individual GPIO channel or a list/tuple of GPIO channels with an individual value or a list/tuple of values respectively.
+One may specify multiple channels and a single value for each channel to be set to the same value.
         
 \textit{parameters}:
 \begin{enumerate}      
@@ -348,6 +375,8 @@ If an event is detected and if the implication holds that a bouncetime is specif
 
 Then, the 0-ary callable objects stored in the list \texttt{\_State.lines[channel].callbacks} will be serially invoked. If one subsequently invokes \texttt{event\_dected(channel)}, the event detected by this function will \textit{not} be reported.
 
+Returns \texttt{channel} if any event is detected, otherwise returns None.
+
 \textit{parameters}:
 \begin{enumerate}      
         \item channel --- GPIO channel
@@ -370,6 +399,8 @@ Then, the 0-ary callable objects stored in the list \texttt{\_State.lines[channe
     % TODO: return to this issue
     %
     % Also, should this spec include OSError exceptions we introduce?
+    % \item RuntimeError --- edge detection is already configured on this channel
+    % Yeah you're allowed to do that ^^ with this library as well, unlike the original RPi.GPIO
 \end{itemize}
 
 \subsection{Class \texttt{RPi.GPIO.PWM}} \label{pwm}
@@ -410,7 +441,9 @@ Change the frequency the PwM channel to \texttt{frequency}
 
 \noindent \texttt{RPi.GPIO.PWM}.\textbf{\_\_init\_\_}(channel, frequency)
         
-Initialize a new PwM object. Commonly invoked via: \texttt{RPi.GPIO.PWM(channel, frequency)}
+Initialize a new PwM object. Commonly invoked via:
+
+\texttt{RPi.GPIO.PWM(channel, frequency)}
 
 \textit{parameters}:
 \begin{enumerate}
@@ -590,7 +623,17 @@ Software Pulse-width Modulation is implemented on top of the core API.
 % TODO: validate this
 We essentially make repeated calls to \texttt{GPIO.output(channel)} corresponding appropriately to the period and duty cycle.
 
-Event detection is done by running a poll thread using python's built-in threading class, \texttt{threading.Thread}. Since multiple active threads may try to write to the library state, we implement mutual exclusion for critical sections on a per-GPIO channel basis, with each \texttt{gpiod.Line} object having an associated lock of type \texttt{threading.lock}. These locks are intended to be used via the \texttt{\{begin,end\}\_critical\_section(channel, msg)} interface primitives. Some internal interface functions have locking and non-locking versions. This is indicated via a \texttt{\_lock} suffix appended to the function identifier.
+Event detection is done by running a poll thread using python's
+built-in threading class, \texttt{threading.Thread}.
+Since multiple active threads may try to write to the library state,
+we implement mutual exclusion for critical sections on a per-GPIO channel basis,
+with each \texttt{gpiod.Line} object having an associated lock of type
+\texttt{threading.lock}. These locks are intended to be used via
+the \texttt{begin\_critical\_section(channel, msg)} and
+\sloppy
+\texttt{end\_critical\_section(channel, msg)} interface
+primitives. Some internal interface functions have locking and non-locking versions.
+This is indicated via a \texttt{\_lock} suffix appended to the function identifier.
 
 \subsection{Data Design: Class \_State} \label{class_state}
 
@@ -682,7 +725,8 @@ Request for \texttt{libgpiod} to execute the syscall to get permissions to acces
 
 The GPIO channel corresponding to this line.
 
-\textit{Default value:} An integer passed to \texttt{\_\_init\_\_} via \texttt{Reset()}. See \texttt{\_State.lines} in section \ref{class_state}.
+\textit{Default value:} An integer passed to \texttt{\_\_init\_\_} via \texttt{Reset()}.
+See \texttt{\_State.lines} in section \ref{class_state}.
 
 \noindent \_Line.\textbf{line}
 
@@ -698,7 +742,11 @@ The current line mode of the GPIO channel. See section \ref{linemodes} for more 
 
 \noindent \_Line.\textbf{lock}
 
-A locking primitive of type \texttt{threading.Lock}. Used internally by the locking interface primitives \texttt{\{begin,end\}\_critical\_section(channel, msg)}.
+A locking primitive of type \texttt{threading.Lock}.
+
+Used internally by the locking interface primitives
+\texttt{begin\_critical\_section(channel, msg)} and
+\texttt{end\_critical\_section(channel, msg)}.
 
 \textit{Default value:} \texttt{threading.Lock()}
 
@@ -752,9 +800,8 @@ This section defines the internal interface functions used to implement operatio
 
 \noindent channel\_\textbf{fix\_and\_validate}(channel)
 
-\noindent channel\_\textbf{valid\_or\_die}(channel)
-
-Validate \texttt{channel} using the current numbering mode. See getmode()/setmode() in section \ref{coreapi} for more information about numbering modes. The first name is used internally while the latter name is currently not called within the library but may be specified in a future version of the core API. Exposure of this functionality is undefined in version 1.0
+Validate \texttt{channel} using the current numbering mode.
+See getmode()/setmode() in section \ref{coreapi} for more information about numbering modes.
 
 \textit{parameters}:
 \begin{enumerate}      
@@ -792,6 +839,11 @@ Initialize the \texttt{gpiod.Chip} object held by \texttt{\_State.chip}. The for
     \item PermissionError --- Unable to open file ``/dev/gpiochip0'', perhaps because script was not run as root.
 \end{itemize}
 
+\noindent chip\_\textbf{is\_open}()
+
+Returns the truth value of whether the chip has been initialized.
+True if yes, False if no.
+
 \subsection{The \texttt{line\_} interface}
 
 This section defines the internal interface functions used to implement operations at the \texttt{gpiod.Line} level. External exposure of these functions is undefined behavior.
@@ -824,7 +876,7 @@ This section defines the internal interface functions used to implement operatio
 \noindent line\_\textbf{event\_wait\_lock}(channel, bouncetime, track)
 
 [first: LOCK REQUIRED, second: LOCKS channel]
-Wait for an edge event of type previously specified in edge event detection setup. Calls \texttt{gpiod.Line.event\_wait()}. Returns the event returned by \texttt{gpiod.Line.event\_read()} if one occurred and returns None otherwise. 
+Wait for an edge event of type previously specified in edge event detection setup. Calls \texttt{gpiod.Line.event\_wait()}. Returns the channel number if an event occurred and returns None otherwise. 
 
 \textit{parameters}:
 \begin{enumerate}      
@@ -1076,9 +1128,7 @@ A thread type that will execute software pulse-width modulation on a channel
     \item \texttt{RPi.GPIO} API support on Fedora Linux
 \end{itemize}
 
-
-\section{References}
-\bibliographystyle{IEEEtranS}
+\bibliographystyle{acm}
 
 \bibliography{sources}
 

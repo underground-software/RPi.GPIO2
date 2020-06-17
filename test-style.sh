@@ -21,7 +21,7 @@ scan() {
         fi
 }
 
-scan RPi/_GPIO.py
+scan RPi/core.py
 scan tests/test_gpio.py
 scan tests/test_pwm.py
 
@@ -30,7 +30,7 @@ scan RPi/GPIO_DEVEL/__init__.py
 
 for f in $(ls examples)
 do
-	if [ "$f" != "__pycache__" ] && [ "$f" != "morse.py" ]
+	if [ "$f" != "__pycache__" ]
 	then
 		scan examples/"$f" 
 	fi

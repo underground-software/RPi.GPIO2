@@ -33,13 +33,28 @@ def test_init():
 
 def test_start_stop():
     GPIO_DEVEL.Reset()
-    GPIO_DEVEL.setdebuginfo(True)
     GPIO.setmode(GPIO.BCM)
 
     GPIO.setup(18, GPIO.OUT)
     foo = GPIO.PWM(18, 100)
 
-    foo.start(50)
+    with pytest.raises(ValueError) as e:
+        foo.start(-1)
+    assert "dutycycle must have a value from 0.0 to 100.0" in str(e.value)
+
+    with pytest.raises(ValueError) as e:
+        foo.start(101)
+    assert "dutycycle must have a value from 0.0 to 100.0" in str(e.value)
+
+    assert foo.start(50)
+
+    # Can't run start twice but it won't raise an exception
+    with pytest.warns(Warning):
+        assert foo.start(51) is False
+
+    time.sleep(.2)
+    foo.stop()
+
     time.sleep(.2)
     foo.stop()
 
@@ -47,7 +62,6 @@ def test_start_stop():
 def test_change_attributes():
 
     GPIO_DEVEL.Reset()
-    GPIO_DEVEL.setdebuginfo(True)
     GPIO.setmode(GPIO.BCM)
 
     GPIO.setup(18, GPIO.OUT)
