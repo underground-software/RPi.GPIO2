@@ -35,3 +35,5 @@ do
 		scan examples/"$f" 
 	fi
 done
+
+scan setup.py

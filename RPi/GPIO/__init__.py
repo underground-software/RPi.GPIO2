@@ -47,3 +47,6 @@ from RPi.core import\
     setup,\
     setwarnings,\
     wait_for_edge
+
+# python3-libgpiod-rpi base version
+VERSION2 = "0.3.0a1"  # Leviticus Alpha

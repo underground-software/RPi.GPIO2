@@ -549,3 +549,11 @@ def test_cleanup():
     GPIO.cleanup((18, 21))
 
     GPIO_DEVEL.Reset()
+
+
+def test_version_compliance():
+    # Source: https://www.python.org/dev/peps/pep-0440/#appendix-b-parsing-version-strings-with-regular-expressions
+
+    _re = r'^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$'
+
+    assert re.match(_re, GPIO.VERSION2) is not None
