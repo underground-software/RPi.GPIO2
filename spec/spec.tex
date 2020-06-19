@@ -86,7 +86,7 @@ to interface with GPIO devices on the Raspberry Pi
 GPIO channel or pin &
 \begin{tabular}[c]{@{}l@{}}
 The number that maps to some GPIO line \\
-in terms of either of BCM or BOARD
+in terms of either of BCM or BOARD pin numbering modes
 \end{tabular} \\ \hline
 GPIO line &
 \begin{tabular}[c]{@{}l@{}}
@@ -275,7 +275,7 @@ Get the current value of the GPIO line specified by \texttt{channel}. Returns on
 \end{itemize}
 
 
-\noindent \texttt{RPi.GPIO}.\textbf{output}(channel)
+\noindent \texttt{RPi.GPIO}.\textbf{output}(channel, value)
         
 Set the value of an individual GPIO channel or a list/tuple of GPIO channels with an individual value or a list/tuple of values respectively.
 One may specify multiple channels and a single value for each channel to be set to the same value.
