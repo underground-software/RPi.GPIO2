@@ -275,7 +275,7 @@ Get the current value of the GPIO line specified by \texttt{channel}. Returns on
 \end{itemize}
 
 
-\noindent \texttt{RPi.GPIO}.\textbf{output}(channel)
+\noindent \texttt{RPi.GPIO}.\textbf{output}(channel, value)
         
 Set the value of an individual GPIO channel or a list/tuple of GPIO channels with an individual value or a list/tuple of values respectively.
 One may specify multiple channels and a single value for each channel to be set to the same value.
@@ -327,7 +327,7 @@ Set up numbering mode to use for channels. Mode is one of BOARD or BCM, where BO
     \item RuntimeError --- Module was not imported correctly 
 \end{itemize}
 
-\noindent \texttt{RPi.GPIO}.\textbf{setup}(channel)
+\noindent \texttt{RPi.GPIO}.\textbf{setup}(channel, direction, [pull\_up\_down], [initial])
  
  
 Set up an individual GPIO channel or list/tuple of GPIO channels given a direction and (optionally) a bias (e.g. PUD\_UP/PUD\_DOWN)
@@ -366,14 +366,14 @@ Enable or disable warning messages. Use True to enable and False to disable.
 
 [BLOCKS] Wait for an edge event of type \texttt{edge} to take place on \texttt{channel}. Disables python's Global Interpreter Lock while blocking. A negative timeout value will cause the program to block indefinitely waiting for an edge event. A timeout value of zero will prevent the program from blocking entirely.
 
-If an event is detected and if the implication holds that a bouncetime is specified implies that any one of the following is true: 
+If an event is detected and none of the following hold true:
 \begin{enumerate}
-    \item The difference between the current time and the time at which this event previously occurred
+    \item If provided a bouncetime, the difference between the current time and the time at which this event previously occurred is less than the bouncetime
     \item This function, \texttt{line\_event\_wait} has never been called before on this channel
     \item The time at which this event last occurred is later than the current time \footnote{Yeah I don't really understand this one either, for more information refer to \texttt{The RPi.GPIO 0.7.0 Source Code, source/event\_gpio.c:579}\cite{rpigpio}}.
 \end{enumerate}
 
-Then, the 0-ary callable objects stored in the list \texttt{\_State.lines[channel].callbacks} will be serially invoked. If one subsequently invokes \texttt{event\_dected(channel)}, the event detected by this function will \textit{not} be reported.
+Then, the 0-ary callable objects stored in the list \texttt{\_State.lines[channel].callbacks} will be serially invoked. If one subsequently invokes \texttt{event\_detected(channel)}, the event detected by this function will \textit{not} be reported.
 
 Returns \texttt{channel} if any event is detected, otherwise returns None.
 
