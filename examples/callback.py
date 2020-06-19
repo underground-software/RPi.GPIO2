@@ -2,10 +2,12 @@
 import RPi.GPIO as GPIO
 import time
 
-testpin=25
+testpin = 25
+
 
 def callback_one(pin):
     print("CALLBACK FUNCTION NUMBER ONE")
+
 
 def callback_two(pin):
     print("CALLBACK FUNCTION NUMBER TWO with lights")
@@ -14,14 +16,12 @@ def callback_two(pin):
     print("CALLED:", callback_two.count)
     GPIO.output(18, 0)
     callback_two.count += 1
+
+
 callback_two.count = 0
 
 
 GPIO.setmode(GPIO.BCM)
-# GPIO.wait_for_edge(testpin, GPIO.BOTH_EDGE, 2000, 66660)
-# print("pass1")
-# GPIO.wait_for_edge(testpin, GPIO.BOTH_EDGE, 2000, 66660)
-# print("pass2")
 
 GPIO.setup(18, GPIO.OUT, GPIO.PUD_OFF, 0)
 GPIO.setup(25, GPIO.IN, GPIO.PUD_OFF)

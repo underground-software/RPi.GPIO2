@@ -1,7 +1,0 @@
-The files in this directory can be used to reproduce an
-apparently permanent network crash by requesting access
-to a GPIO responsible for that interface
-
-TODO: figure out what to do with this information
-
-NOTE: Should our library protect the user from themselves here?

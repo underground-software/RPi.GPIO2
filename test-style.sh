@@ -12,6 +12,7 @@ done
 
 SOURCES=""
 scan() {
+	echo "[SCAN] $1"
         flake8 "$FLAKE8_FLAGS" $1
         RES=$?
         if test "$RES" -ne "0"
@@ -20,8 +21,17 @@ scan() {
         fi
 }
 
-scan RPi/_GPIO.py
-scan tests/test_whitebox.py
+scan RPi/core.py
+scan tests/test_gpio.py
+scan tests/test_pwm.py
 
 scan RPi/GPIO/__init__.py
 scan RPi/GPIO_DEVEL/__init__.py
+
+for f in $(ls examples)
+do
+	if [ "$f" != "__pycache__" ]
+	then
+		scan examples/"$f" 
+	fi
+done
