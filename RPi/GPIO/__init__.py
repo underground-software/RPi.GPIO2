@@ -24,6 +24,7 @@ from RPi.core import\
     RISING,\
     RPI_INFO,\
     RPI_REVISION,\
+    SERIAL,\
     SPI,\
     UNKNOWN,\
     VERSION,\
