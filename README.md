@@ -1,5 +1,7 @@
 ## python3-libgpiod-rpi
 
+[![PyPI version](https://badge.fury.io/py/RPi.GPIO2.svg)](https://badge.fury.io/py/RPi.GPIO2)
+
 #### Summary:
 
 This project implements a compatibility layer between RPi.GPIO syntax and libgpiod semantics.
