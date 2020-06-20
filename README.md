@@ -24,7 +24,7 @@ libgpiod's python bindings. libgpiod provides a straightforward interface for in
 with GPIO pins on supported devices via the mainline Linux kernel interface.
 
 For more detailed information on the design and implementation of this library, please
-refer to the [functional and technical specification](spec/spec.pdf).
+refer to the [functional and technical specification](https://github.com/underground-software/python3-libgpiod-rpi/blob/master/spec/spec.pdf).
 
 ### Notes:
 
@@ -49,4 +49,5 @@ the gpio pins via this library.
 To view the locations and surrounding lines of all TODOs, FIXMEs, and NOTEs in the codebase,
 use the `notes.sh` script included with this project.
 
-This project is free software, please refer to our [LICENSE](LICENSE) for further detail.
+This project is free software, please refer to our [LICENSE](https://github.com/underground-software/python3-libgpiod-rpi/blob/master/LICENSE.txt)
+for further detail.
