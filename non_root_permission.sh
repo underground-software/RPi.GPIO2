@@ -18,4 +18,22 @@ chgrp gpio /dev/gpiochip0
 chmod g+rw /dev/gpiochip0
 
 echo "All users in group 'gpio' can access the gpio pins"
+echo "Would you like to make this change persistent? (Y/N)"
+while read input; do
+  case "$input" in
+        [Yy]) if [ ! -f /etc/rc.d/rc.local ]; then
+                        echo "#!/bin/sh" >> /etc/rc.d/rc.local
+                        chmod +x /etc/rc.d/rc.local
+              fi
+              if [[ $(cat /etc/rc.d/rc.local \
+                  | grep -E "chgrp gpio /dev/gpiochip0|chmod g+rw /dev/gpiochip0" \
+                  | wc -l) != 2 ]]; then
+                        echo "chgrp gpio /dev/gpiochip0" >> /etc/rc.d/rc.local
+                        echo "chmod g+rw /dev/gpiochip0" >> /etc/rc.d/rc.local
+              fi
+              break ;;
+        [Nn]) break ;;
+           *) echo "Please enter Y or N: " ;;
+  esac
+done
 exit 0
