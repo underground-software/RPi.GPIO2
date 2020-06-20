@@ -50,4 +50,4 @@ from RPi.core import\
     wait_for_edge
 
 # python3-libgpiod-rpi base version
-VERSION2 = "0.3.0a2"  # Leviticus Alpha Deux
+VERSION2 = "0.3.0a3"  # Leviticus Alpha Trois
