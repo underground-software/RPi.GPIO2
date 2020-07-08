@@ -8,3 +8,12 @@ pyvenv.cfg
 dist
 lib64
 *.egg-info
+
+spec/spec.aux
+spec/spec.bbl
+spec/spec.blg
+spec/spec.fdb_latexmk
+spec/spec.fls
+spec/spec.log
+spec/spec.synctex.gz
+
