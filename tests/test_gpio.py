@@ -41,6 +41,16 @@ def test_is_iterable():
         assert GPIO_DEVEL.is_iterable(i) is True
 
 
+@pytest.mark.parametrize('GPIO_MODE', [GPIO.BCM, GPIO.BOARD])
+def test_setmode_remain_silent_in_same_mode(GPIO_MODE):
+    GPIO_DEVEL.Reset()
+    GPIO.setmode(GPIO_MODE)  # Set a mode first
+    try:
+        GPIO.setmode(GPIO_MODE)  # Expect there is not exception being raised
+    except ValueError:
+        pytest.fail('Failed to due double setup')
+
+
 def test_setmode_raise_double_setup_exception():
     GPIO_DEVEL.Reset()
     with pytest.raises(Exception):
