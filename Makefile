@@ -7,7 +7,7 @@ all: test
 test: test-cov style
 
 test-cov:
-	@bash test-cov.sh -m && echo "FUNTIONAL PASS" || echo "FAILURE IN UNIT TEST"
+	@bash test-cov.sh -m && echo "FUNCTIONAL PASS" || echo "FAILURE IN UNIT TEST"
 
 style:
 	@bash test-style.sh && echo "AESTHETIC PASS"  || echo "FAILURE IN STYLE TEST"
