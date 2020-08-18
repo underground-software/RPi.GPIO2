@@ -2,17 +2,15 @@
 # RPi.GPIO compatibility layer for libgpiod
 #
 
-Summary: libgpiod compatibility layer for RPi.GPIO
+Summary: libgpiod compatibility layer for RPi.GPIO API
 Name: python3-libgpiod-rpi
-Version: 0.2
-Release: 1
+Version: 0.3.0
+Release: 1%{?dist}
 License: GPLv3
+URL: https://python3-libgpiod-rpi.underground.software/%{name}
 Source: https://github.com/underground-software/%{name}/archive/v%{version}.tar.gz
-Distribution: Fedora 30 Linux
-Packager: UML Fedora RPI <fedora-rpi@googlegroups.com>
-Requires: python3
-Requires: python3-libgpiod
-Requires: bash
+Requires: python3-libgpiod = 1.5.1
+BuildArch: noarch
 
 %define debug_package %{nil}
 
@@ -20,18 +18,18 @@ Requires: bash
 This project implements a compatibility layer between RPi.GPIO syntax and libgpiod semantics.
 
 %prep
-#unzip $RPM_SOURCE_DIR/python3-libgpiod-rpi.zip
+# NOP
+
 %setup
+# NOP
 
 %build
 # NOP
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/%{python3_sitearch}
-cp -r RPi %{buildroot}/%{python3_sitearch}
+%py3_install
 
 %files
-%license LICENSE
+%license LICENSE.md
 %doc README.md
 %{python3_sitearch}/RPi
