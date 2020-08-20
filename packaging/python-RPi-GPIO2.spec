@@ -8,9 +8,9 @@ Version: 0.3.0
 Release: 1%{?dist}
 License: GPLv3+
 URL: https://pypi.org/project/RPi.GPIO2/
-Source0: %{pypi_source %pypi_name 0.3.0a3}
+Source0: https://github.com/underground-software/python3-libgpiod-rpi/archive/v0.3.0a3.tar.gz
 
-%global %_description %{expand:
+%global _description %{expand:
 This library implements a compatibility layer between RPi.GPIO syntax and
 libgpiod semantics, allowing a fedora user on the Raspberry Pi platform to
 use the popular RPi.GPIO API, the original implmenetation of which depends
