@@ -49,5 +49,5 @@ from RPi.core import\
     setwarnings,\
     wait_for_edge
 
-# python3-libgpiod-rpi base version
+# RPi.GPIO2 base version
 VERSION2 = "0.3.0a3"  # Leviticus Alpha Trois
