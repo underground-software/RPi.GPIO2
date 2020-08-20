@@ -1,35 +1,33 @@
-#
-# RPi.GPIO compatibility layer for libgpiod
-#
+# python-RPi-GPIO2.spec
+%global pypi_name	RPi.GPIO2
 
 Summary: libgpiod compatibility layer for RPi.GPIO API
-Name: python3-libgpiod-rpi
+Name: python-RPi-GPIO2
 Version: 0.3.0
 Release: 1%{?dist}
 License: GPLv3+
-URL: https://python3-libgpiod-rpi.underground.software/%{name}
-Source: https://github.com/underground-software/%{name}/archive/v%{version}.tar.gz
+URL: https://python3-libgpiod-rpi.underground.software/
+Source: ${pypi_source %pypi_name 0.3.0a3}
+
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
+
 # This explicity dependency on the libgpiod python bindings subpackage
 # is neccessary because it is unsatisfiable via PyPi
 Requires: python3-libgpiod >= 1.5
 BuildArch: noarch
 
-%define debug_package %{nil}
-
 %description
-This project implements a compatibility layer between RPi.GPIO syntax and
+This library implements a compatibility layer between RPi.GPIO syntax and
 libgpiod semantics, allowing a fedora user on the Raspberry Pi platform to
 use the popular RPi.GPIO API, the original implmenetation of which depends
 on features provided by a non-mainline kernel.
 
 %prep
-# NOP
-
-%setup
-# NOP
+%autosetup -n ${srcname}-%{version}
 
 %build
-# NOP
+%py3_build
 
 %install
 %py3_install
@@ -37,7 +35,7 @@ on features provided by a non-mainline kernel.
 %files
 %license LICENSE.md
 %doc README.md
-%{python3_sitearch}/RPi
+%{python3_sitelib}/RPi/
 
 
 %changelog
