@@ -25,7 +25,7 @@ BuildRequires: python3-setuptools
 %{?python_provide:%python_provide python3-%{srcname}}
 
 
-# This explicity dependency on the libgpiod python bindings subpackage
+# This explicit dependency on the libgpiod python bindings subpackage
 # is neccessary because it is unsatisfiable via PyPi
 Requires: python3-libgpiod >= 1.5
 BuildArch: noarch
