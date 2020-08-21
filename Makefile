@@ -1,4 +1,4 @@
-# Makefile to automate common testing procedures for python3-libgpiod-rpi
+# Makefile to automate common testing procedures for RPi.GPIO2
 # By Joel Savitz
 # This is free software, see LICENSE for details
 

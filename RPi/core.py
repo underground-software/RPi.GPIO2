@@ -1,5 +1,5 @@
 """
-Core implementation of python3-libgpiod-rpi
+Core implementation of RPi.GPIO2
 By Joel Savitz and Fabrizio D'Angelo
 This is free software, see LICENSE for details
 """
@@ -26,7 +26,7 @@ pin_to_gpio_rev3 = [
 # Exact values for constants taken from RPi.GPIO source code
 # file: source/common.h
 
-# [API] RPi.GPIO API version (not python3-libgpiod-rpi version)
+# [API] RPi.GPIO API version (not RPi.GPIO2 version)
 # NOTE: we currently only officially support the Raspbery Pi 3 Model B
 # but we soon plan to implement support for the Raspbery Pi 4 Model B
 # We are limited by the hardware available to the developers

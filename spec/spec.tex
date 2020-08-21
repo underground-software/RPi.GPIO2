@@ -5,8 +5,8 @@
 \usepackage{verbatim, hyphenat}
 
 \title{
-{python3-libgpiod-rpi 1.0} \\ {Functional and Technical Specification } \\
-{\normalsize Revision 2}
+{RPi.GPIO2 1.0} \\ {Functional and Technical Specification } \\
+{\normalsize Revision 3}
 }
 
 
@@ -18,11 +18,11 @@
 
 \section{Introduction}
 \subsection{Purpose}
-This document specifies the functional requirements and and technical implementation of python3-libgpiod-rpi. Upon completion and ratification by our group, our development and quality engineering efforts will follow from this document. We will consider this document the upstream authority with respect to our implementation and as such all future changes shall be first specified here and subsequently integrated into our codebase.
+This document specifies the functional requirements and and technical implementation of RPi.GPIO2. Upon completion and ratification by our group, our development and quality engineering efforts will follow from this document. We will consider this document the upstream authority with respect to our implementation and as such all future changes shall be first specified here and subsequently integrated into our codebase.
 
 
 \subsection{Scope}
-This document specifies the requirements for version 1.0 of python3-libgpiod-rpi.
+This document specifies the requirements for version 1.0 of RPi.GPIO2.
 We may release minor versions in the form of 0.x that partially satisfy this spec.
 This document does \textit{not} specify features that extend the \texttt{RPi.GPIO}
 interface\footnote{With the exception of \texttt{channel\_valid\_or\_die}(), the addition of which is basically negligible}, in fact, we discourage extensions to the existing API
@@ -48,7 +48,7 @@ that the software must conform to
 \end{tabular} \\ \hline
 The library &
 \begin{tabular}[c]{@{}l@{}}
-python3-libgpiod-rpi
+RPi.GPIO2
 \end{tabular} \\ \hline
 Raspbian &
 \begin{tabular}[c]{@{}l@{}}
@@ -111,9 +111,7 @@ This project implements a compatibility layer between \texttt{RPi.GPIO} syntax a
 \texttt{RPi.GPIO} requires non-standard kernel patches that expose the GPIO registers to userspace via a character device /dev/gpiomem \cite{rpigpio}. As this is not supported by the mainline Linux kernel, any distribution targeting Raspberry Pi devices running the mainline kernel will not be compatible with the \texttt{RPi.GPIO} library. As a large number of tutorials, especially those targeted at beginners, demonstrate use of the RPi's GPIO pins by including \texttt{RPi.GPIO} syntax, this incompatibility limits users to distributions build on a special downstream kernel maintained by the Rapberry Pi foundation. We would like to enable beginners on any Linux distribution by allowing them to follow easily available tutorials.
 
 \textbf{Solution}:
-Using the provided module, one will be able to write python code to use the Raspberry Pi's GPIO pins as if they were using the API implemented by \texttt{RPi.GPIO}, but instead using libgpiod's python bindings. libgpiod provides a straightforward interface for interacting with GPIO pins on supported devices via the mainline Linux kernel interface \cite{libgpiod}. The name python3-libgpiod-rpi comes from simple concatenation of ``-rpi'' onto the end of the name of the Fedora package that provides the python bindings for libgpiod, python3-libgpiod.
-
-
+Using the provided module, one will be able to write python code to use the Raspberry Pi's GPIO pins as if they were using the API implemented by \texttt{RPi.GPIO}, but instead using libgpiod's python bindings. libgpiod provides a straightforward interface for interacting with GPIO pins on supported devices via the mainline Linux kernel interface \cite{libgpiod}.
 
 \section{Functional Requirements for 1.0}
 
@@ -611,7 +609,7 @@ Enable or disable verbose debug messages. Use True to enable and False to disabl
 
 \section{High Level Technical Specification}
 
-In this section, we discuss the implementation design of python3-libgpiod-rpi. In contrast to the style of the functional specification where data and procedures were listed in alphabetical order, we will organize lists in this section in order to best reflect the underlying design.
+In this section, we discuss the implementation design of RPi.GPIO2. In contrast to the style of the functional specification where data and procedures were listed in alphabetical order, we will organize lists in this section in order to best reflect the underlying design.
 
 \subsection{Architecture Overview}
 

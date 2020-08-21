@@ -14,7 +14,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
 
-    url="https://github.com/underground-software/python3-libgpiod-rpi",
+    url="https://github.com/underground-software/RPi.GPIO2",
     packages=find_packages(),
 
     classifiers=[
@@ -38,7 +38,7 @@ setup(
     python_requires=">=3.7",
 
     project_urls={
-        "Source":       "https://github.com/underground-software/python3-libgpiod-rpi",
-        "Bug Reports":  "https://github.com/underground-software/python3-libgpiod-rpi/issues",
+        "Source":       "https://github.com/underground-software/RPi.GPIO2",
+        "Bug Reports":  "https://github.com/underground-software/RPi.GPIO2/issues",
     },
 )
