@@ -13,7 +13,7 @@ Source0: https://github.com/underground-software/RPi.GPIO2/archive/v0.3.0a3.tar.
 %global _description %{expand:
 This library implements a compatibility layer between RPi.GPIO syntax and
 libgpiod semantics, allowing a fedora user on the Raspberry Pi platform to
-use the popular RPi.GPIO API, the original implmenetation of which depends
+use the popular RPi.GPIO API, the original implementation of which depends
 on features provided by a non-mainline kernel.}
 
 %description %_description
