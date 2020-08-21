@@ -8,7 +8,7 @@ Version: 0.3.0
 Release: 1%{?dist}
 License: GPLv3+
 URL: https://pypi.org/project/RPi.GPIO2/
-Source0: https://github.com/underground-software/python3-libgpiod-rpi/archive/v0.3.0a3.tar.gz
+Source0: https://github.com/underground-software/RPi.GPIO2/archive/v0.3.0a3.tar.gz
 
 %global _description %{expand:
 This library implements a compatibility layer between RPi.GPIO syntax and
