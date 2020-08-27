@@ -1,15 +1,15 @@
 # python-RPi-GPIO2.spec
 %global pypi_name	RPi.GPIO2
-%global srcname		RPi-GPIO2
 
 Summary: A libgpiod compatibility layer for the RPi.GPIO API
-Name: python-%{srcname}
+Name: python-rpi-gpio2
 Version: 0.3.0
-Release: 1%{?dist}
+Release: 1.a3%{?dist}
 License: GPLv3+
 URL: https://pypi.org/project/RPi.GPIO2/
-Source0: https://github.com/underground-software/RPi.GPIO2/archive/v0.3.0a3.tar.gz
+Source0: https://github.com/underground-software/%{pypi_name}/archive/v%{version}a3.tar.gz
 
+BuildArch: noarch
 %global _description %{expand:
 This library implements a compatibility layer between RPi.GPIO syntax and
 libgpiod semantics, allowing a fedora user on the Raspberry Pi platform to
@@ -18,38 +18,34 @@ on features provided by a non-mainline kernel.}
 
 %description %_description
 
-%package -n python3-%{srcname}
+%package -n python3-%{pypi_name}
 Summary: %{summary}
+
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-%{?python_provide:%python_provide python3-%{srcname}}
-
+%{?python_provide:%python_provide python3-%{pypi_name}}
 
 # This explicit dependency on the libgpiod python bindings subpackage
 # is neccessary because it is unsatisfiable via PyPi
 Requires: python3-libgpiod >= 1.5
-BuildArch: noarch
 
-# This package is pure python code so debuginfo is useless
-%global debug_package %{nil}
 
-%description -n python3-%{srcname} %_description
+%description -n python3-%{pypi_name} %_description
 
 
 %prep
 %autosetup -n %{pypi_name}-%{version}a3
+
 
 %build
 %py3_build
 
 %install
 %py3_install
-
-%check
 rm -rf %{buildroot}%{python3_sitelib}/examples
 rm -rf %{buildroot}%{python3_sitelib}/tests
 
-%files -n python3-%{srcname}
+%files -n python3-%{pypi_name}
 %license LICENSE.txt
 %doc README.md
 %{python3_sitelib}/RPi/
