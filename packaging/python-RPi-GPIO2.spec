@@ -32,9 +32,17 @@ Requires: python3-libgpiod >= 1.5
 
 %description -n python3-%{pypi_name} %_description
 
+%package -n python-%{pypi_name}-doc
+Summary: Examples for python-rpi-gpio2
+%description -n python-%{pypi_name}-doc
+A set of examples for python-rpi-gpio2
+
 
 %prep
 %autosetup -n %{pypi_name}-%{version}a3
+
+# Make sure scripts in the examples directory aren't executable
+chmod 0644 examples/*
 
 
 %build
@@ -42,14 +50,20 @@ Requires: python3-libgpiod >= 1.5
 
 %install
 %py3_install
-rm -rf %{buildroot}%{python3_sitelib}/examples
 rm -rf %{buildroot}%{python3_sitelib}/tests
+mkdir -p %{buildroot}%_pkgdocdir
+cp -r %{buildroot}%{python3_sitelib}/examples %{buildroot}%_pkgdocdir
+rm -rf %{buildroot}%{python3_sitelib}/examples
 
 %files -n python3-%{pypi_name}
 %license LICENSE.txt
 %doc README.md
 %{python3_sitelib}/RPi/
 %{python3_sitelib}/%{pypi_name}-%{version}a3-py%{python3_version}.egg-info
+
+%files -n python-%{pypi_name}-doc
+%license LICENSE.txt
+%_pkgdocdir/examples
 
 %changelog
 * Wed Aug 19 2020 Joel Savitz <joelsavitz@gmail.com> - 0.3.0-1
