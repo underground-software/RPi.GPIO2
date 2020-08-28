@@ -1,5 +1,5 @@
 # python-RPi-GPIO2.spec
-%global pypi_name	RPi.GPIO2
+%global pypi_name RPi.GPIO2
 
 Summary: A libgpiod compatibility layer for the RPi.GPIO API
 Name: python-rpi-gpio2
@@ -7,7 +7,7 @@ Version: 0.3.0
 Release: 1.a3%{?dist}
 License: GPLv3+
 URL: https://pypi.org/project/RPi.GPIO2/
-Source0: https://github.com/underground-software/%{pypi_name}/archive/v%{version}a3.tar.gz
+Source0: https://github.com/underground-software/%{pypi_name}/archive/v%{version}a3/%{pypi_name}-%{version}a3.tar.gz
 
 BuildArch: noarch
 %global _description %{expand:
@@ -66,5 +66,5 @@ rm -rf %{buildroot}%{python3_sitelib}/examples
 %_pkgdocdir/examples
 
 %changelog
-* Wed Aug 19 2020 Joel Savitz <joelsavitz@gmail.com> - 0.3.0-1
+* Wed Aug 19 2020 Joel Savitz <joelsavitz@gmail.com> - 0.3.0-1.a3
 - initial package
