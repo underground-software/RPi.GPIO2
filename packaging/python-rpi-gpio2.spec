@@ -9,6 +9,9 @@ License: GPLv3+
 URL: https://pypi.org/project/RPi.GPIO2/
 Source0: https://github.com/underground-software/%{pypi_name}/archive/v%{version}a3/%{pypi_name}-%{version}a3.tar.gz
 
+Obsoletes: python-rpi-gpio <= 0.7.1
+Provides: python-rpi-gpio
+
 BuildArch: noarch
 %global _description %{expand:
 This library implements a compatibility layer between RPi.GPIO syntax and
@@ -20,6 +23,9 @@ on features provided by a non-mainline kernel.}
 
 %package -n python3-%{pypi_name}
 Summary: %{summary}
+
+Obsoletes: python3-RPi.GPIO <= 0.7.1
+Provides: python3-RPi.GPIO
 
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
