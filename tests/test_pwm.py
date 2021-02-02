@@ -13,7 +13,7 @@ def test_init():
     assert foo is foo
 
     with pytest.raises(ValueError) as e:
-        bar = GPIO.PWM(54, 1)
+        bar = GPIO.PWM(666, 1)
     assert "channel sent is invalid" in str(e.value)
 
     with pytest.raises(ValueError) as e:
