@@ -134,7 +134,7 @@ def test_setup():
     assert "Channel must be an integer" in str(e.value)
 
     with pytest.raises(ValueError) as e:
-        GPIO.setup(54, GPIO.OUT)
+        GPIO.setup(666, GPIO.OUT)
     assert "channel sent is invalid" in str(e.value)
 
     with pytest.raises(ValueError) as e:
