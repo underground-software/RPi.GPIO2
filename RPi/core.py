@@ -657,8 +657,8 @@ def line_do_poll(channel, bouncetime, timeout):
             break
         if line_event_wait(channel, bouncetime, timeout):
             callbacks = _State.lines[channel].callbacks
-            for fn in callbacks():
-                fn()
+            for fn in callbacks:
+                fn(channel)
         end_critical_section(channel, msg="do poll")
         time.sleep(TEN_MILLISECONDS_IN_SECONDS)
 
@@ -1166,6 +1166,7 @@ class PWM:
         if frequency <= 0.0:
             raise ValueError("frequency must be greater than 0.0")
         self.channel = channel
+        self.started = False
         line_pwm_set_frequency(channel, frequency)
 
     def start(self, dutycycle):
@@ -1176,13 +1177,16 @@ class PWM:
         if dutycycle < 0.0 or dutycycle > 100.0:
             raise ValueError("dutycycle must have a value from 0.0 to 100.0")
 
-        return line_pwm_start(self.channel, dutycycle)
+        if not self.started:
+            return line_pwm_start(self.channel, dutycycle)
+        return False
 
     def stop(self):
         """
         Stop software PWM
         """
         line_pwm_stop(self.channel)
+        self.started = False
 
     def ChangeDutyCycle(self, dutycycle):
         """
@@ -1199,7 +1203,6 @@ class PWM:
         Change the frequency
         frequency - frequency in Hz (freq > 1.0)
         """
-
         if frequency <= 0.0:
             raise ValueError("frequency must be greater than 0.0")
 
