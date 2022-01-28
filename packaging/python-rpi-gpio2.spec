@@ -58,6 +58,8 @@ chmod 0644 examples/*
 %check
 %py3_check_import RPi
 
+# <text> the tests rely on  the presence of the actual physical GPIO pins on the system for now and though we may develop emulation functionality to run the tests on any system in the future we think the software is ready to be packaged as-is and we will just update it when the better tests are done
+
 %install
 %py3_install
 rm -rf %{buildroot}%{python3_sitelib}/tests
