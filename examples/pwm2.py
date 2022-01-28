@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # PWM demo from Ben Croston
 # source: https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM/
 

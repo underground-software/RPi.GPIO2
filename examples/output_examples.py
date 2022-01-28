@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # Output and gpio_function examples from Ben Croston
 # source: https://sourceforge.net/p/raspberry-gpio-python/wiki/Outputs/
 # source: https://sourceforge.net/p/raspberry-gpio-python/wiki/Checking%20function%20of%20GPIO%20channels/
