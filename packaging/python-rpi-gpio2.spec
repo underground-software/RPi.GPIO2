@@ -1,15 +1,16 @@
 # python-RPi-GPIO.spec
-%global pkgname RPi.GPIO2
+%global pkgname rpi-gpio2
+%global pypi_name RPi.GPIO2
 
 Summary: A libgpiod compatibility layer for the RPi.GPIO API
 Name: python-rpi-gpio2
 Version: 0.3.0a3
 Release: 1%{?dist}
 License: GPLv3+
-URL: https://pypi.org/project/RPi.GPIO2/
-Source0: https://github.com/underground-software/%{pkgname}/archive/v%{version}/%{pkgname}-%{version}.tar.gz
+URL: https://github.com/underground-software/%{pypi_name}
+Source0: %{url}/archive/v%{version}/%{pypi_name}-%{version}.tar.gz
 
-Obsoletes: python-rpi-gpio <= 0.7.1
+Obsoletes: python-rpi-gpio = %{version}-%{release}
 Provides: python-rpi-gpio
 
 BuildArch: noarch
@@ -21,7 +22,7 @@ on features provided by a non-mainline kernel.}
 
 %description %_description
 
-%package -n python3-%{pkgname}
+%package -n python3-%{pypi_name}
 Summary: %{summary}
 
 Obsoletes: python3-RPi.GPIO <= 0.7.1
@@ -36,7 +37,7 @@ Recommends: python-%{pkgname}-doc
 # is neccessary because it is unsatisfiable via PyPi
 Requires: python3-libgpiod >= 1.5
 
-%description -n python3-%{pkgname}  %_description
+%description -n python3-%{pypi_name}  %_description
 
 %package doc
 Summary: Examples for python-rpi-gpio2
@@ -45,7 +46,7 @@ A set of examples for python-rpi-gpio2
 
 
 %prep
-%autosetup -n %{pkgname}-%{version}
+%autosetup -n %{pypi_name}-%{version}
 
 # Make sure scripts in the examples directory aren't executable
 chmod 0644 examples/*
@@ -59,15 +60,18 @@ chmod 0644 examples/*
 rm -rf %{buildroot}%{python3_sitelib}/tests
 rm -rf %{buildroot}%{python3_sitelib}/examples
 
-%files -n python3-%{pkgname}
+%files -n python3-%{pypi_name}
 %license LICENSE.txt
 %doc README.md
 %{python3_sitelib}/RPi/
-%{python3_sitelib}/%{pkgname}-%{version}-py%{python3_version}.egg-info
+%{python3_sitelib}/%{pypi_name}-%{version}-py%{python3_version}.egg-info
 
 %files doc
 %license LICENSE.txt
 %doc examples
+
+%check
+%py3_check_import RPi
 
 %changelog
 * Wed Aug 19 2020 Joel Savitz <joelsavitz@gmail.com> - 0.3.0a3-1
