@@ -55,6 +55,9 @@ chmod 0644 examples/*
 %build
 %py3_build
 
+%check
+%py3_check_import RPi
+
 %install
 %py3_install
 rm -rf %{buildroot}%{python3_sitelib}/tests
@@ -70,9 +73,6 @@ rm -rf %{buildroot}%{python3_sitelib}/examples
 %license LICENSE.txt
 %doc examples
 
-%check
-%py3_check_import RPi
-
 %changelog
-* Wed Aug 19 2020 Joel Savitz <joelsavitz@gmail.com> - 0.3.0a3-1
+* Fri Jan 21 2022 Joel Savitz, Mwesigwa Guma <joelsavitz@gmail.com> <mguma@redhat.com> - 0.3.0a3-1
 - initial package
