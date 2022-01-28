@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # Input examples from Ben Croston
 # source: https://sourceforge.net/p/raspberry-gpio-python/wiki/Inputs/
 

@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # Random examples from Ben Croston
 # source: https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
 import RPi.GPIO as GPIO
