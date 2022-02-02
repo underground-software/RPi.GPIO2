@@ -3,7 +3,7 @@
 %global pypi_name RPi.GPIO2
 
 Summary: A libgpiod compatibility layer for the RPi.GPIO API
-Name: python-rpi-gpio2
+Name: python-%{pkgname}
 Version: 0.3.0a3
 Release: 1%{?dist}
 License: GPLv3+
