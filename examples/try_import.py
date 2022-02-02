@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # An example of how one may import this library
 # by Ben Croston
 # Source: https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/

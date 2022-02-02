@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 # Another example of PwM usage using the RPi.GPIO API
 # By "alex"
 # source: https://raspi.tv/2013/rpi-gpio-0-5-2a-now-has-software-pwm-how-to-use-it
