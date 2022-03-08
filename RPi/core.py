@@ -438,14 +438,14 @@ def line_set_mode(channel, mode, flags=0):
 
     begin_critical_section(channel, msg="set line_mode")
     if line_get_mode(channel) != _line_mode_none or mode == _line_mode_none:
-        DCprint
         _State.lines[channel].cleanup()
 
-    if mode != _line_mode_none:
-        ret = _State.lines[channel].mode_request(mode, flags)
-        DCprint(channel, "ioctl/request({}, {}) rv:".format(mode, flags), ret)
-
-    end_critical_section(channel, msg="set line_mode")
+    try:
+        if mode != _line_mode_none:
+            ret = _State.lines[channel].mode_request(mode, flags)
+            DCprint(channel, "ioctl/request({}, {}) rv:".format(mode, flags), ret)
+    finally:
+        end_critical_section(channel, msg="set line_mode")
     DCprint(channel, "line mode set to", mode)
 
 
@@ -1106,9 +1106,9 @@ def setup(channel, direction, pull_up_down=PUD_OFF, initial=None):
             if initial is not None:
                 line_set_value(pin, initial)
         except OSError:
-            warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n \
-                    Further attemps to use channel {} will fail unless setup() is run again sucessfully".format(pin))
-
+            # warn("This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.\n \
+                    # Further attemps to use channel {} will fail unless setup() is run again sucessfully".format(pin))
+            raise RuntimeError("gpio failure")
 
 def setwarnings(value):
     """Enable or disable warning messages"""
