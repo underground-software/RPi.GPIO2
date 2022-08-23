@@ -50,4 +50,4 @@ from RPi.core import\
     wait_for_edge
 
 # RPi.GPIO2 base version
-VERSION2 = "0.3.0a3"  # Leviticus Alpha Trois
+VERSION2 = "0.4.0"  # Numbers

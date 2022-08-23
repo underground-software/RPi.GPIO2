@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="RPi.GPIO2",
-    version="0.3.0a3",
+    version="0.4.0",
 
     author="Joel Savitz",
     author_email="joelsavitz@gmail.com",
