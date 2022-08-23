@@ -4,7 +4,7 @@
 
 Summary: A libgpiod compatibility layer for the RPi.GPIO API
 Name: python-%{pkgname}
-Version: 0.3.0a3
+Version: 0.4.0
 Release: 1%{?dist}
 License: GPLv3+
 URL: https://github.com/underground-software/%{pypi_name}
@@ -76,5 +76,5 @@ rm -rf %{buildroot}%{python3_sitelib}/examples
 %doc examples
 
 %changelog
-* Fri Jan 21 2022 Joel Savitz, Mwesigwa Guma <joelsavitz@gmail.com> <mguma@redhat.com> - 0.3.0a3-1
+* Fri Jan 21 2022 Joel Savitz <joelsavitz@gmail.com> - 0.4.0-1
 - initial package
