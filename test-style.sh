@@ -12,8 +12,8 @@ done
 
 SOURCES=""
 scan() {
-	echo "[SCAN] $1"
-        flake8 "$FLAKE8_FLAGS" $1
+	echo "[SCAN] ${1}"
+        flake8 ${FLAKE8_FLAGS} ${1}
         RES=$?
         if test "$RES" -ne "0"
         then
