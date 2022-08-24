@@ -1046,7 +1046,7 @@ def setmode(mode):
         BOARD - Use Raspberry Pi board numbers
         BCM   - Use Broadcom GPIO 00..nn numbers
     """
-    if _State.mode != UNKNOWN:
+    if _State.mode != UNKNOWN and _State.mode != mode:
         raise ValueError("A different mode has already been set!")
 
     if mode != BCM and mode != BOARD:
