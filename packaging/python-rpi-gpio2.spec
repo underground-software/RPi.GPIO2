@@ -2,12 +2,10 @@ Summary: A libgpiod compatibility layer for the RPi.GPIO API
 Name: python-rpi-gpio2
 Version: 0.4.0
 Release: 1%{?dist}
+
 License: GPL-3.0-or-later
 URL: https://github.com/underground-software/RPi.GPIO2
 Source0: %{url}/archive/v%{version}/RPi.GPIO2-%{version}.tar.gz
-
-Obsoletes: python-rpi-gpio = %{version}-%{release}
-Provides: python-rpi-gpio
 
 BuildArch: noarch
 %global _description %{expand:
@@ -21,8 +19,8 @@ on features provided by a non-mainline kernel.}
 %package -n python3-RPi.GPIO2
 Summary: %{summary}
 
-Obsoletes: python3-RPi.GPIO <= 0.7.1
-Provides: python3-RPi.GPIO = %{version}-%{release}
+Obsoletes: python3-RPi.GPIO < 0.7.0-7
+Provides: python3-RPi.GPIO = 1:%{version}-%{release}
 
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
@@ -35,6 +33,7 @@ Requires: python3-libgpiod >= 1.5
 
 %package doc
 Summary: Examples for python-rpi-gpio2
+
 %description doc
 A set of examples for python-rpi-gpio2
 
@@ -71,5 +70,5 @@ rm -rf %{buildroot}%{python3_sitelib}/examples
 %doc examples
 
 %changelog
-* Fri Jan 21 2022 Joel Savitz <joelsavitz@gmail.com> - 0.4.0-1
+* Wed Aug 31 2022 Joel Savitz <joelsavitz@gmail.com> - 0.4.0-1
 - initial package
