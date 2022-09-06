@@ -16,7 +16,7 @@ on features provided by a non-mainline kernel.}
 
 %description %_description
 
-%package -n python3-RPi.GPIO2
+%package -n python3-rpi-gpio2
 Summary: %{summary}
 
 Obsoletes: python3-RPi.GPIO < 0.7.0-7
@@ -29,12 +29,12 @@ BuildRequires: python3-setuptools
 # is neccessary because it is unsatisfiable via PyPi
 Requires: python3-libgpiod >= 1.5
 
-%description -n python3-RPi.GPIO2  %_description
+%description -n python3-rpi-gpio2  %_description
 
 %package doc
 Summary: Examples for python-rpi-gpio2
 
-%description doc
+%description doc %{_description}
 A set of examples for python-rpi-gpio2
 
 
@@ -59,7 +59,7 @@ rm -rf %{buildroot}%{python3_sitelib}/examples
 # The tests rely on the presence of the actual physical GPIO pins on the system for now and though we may develop emulation functionality to run the tests on any system in the future we think the software is ready to be packaged as-is and we will just update it when the better tests are done
 
 
-%files -n python3-RPi.GPIO2
+%files -n python3-rpi-gpio2
 %license LICENSE.txt
 %doc README.md
 %{python3_sitelib}/RPi/
