@@ -26,8 +26,6 @@ numpy==1.23.2
 ordereddict==1.1
 ox_profile==0.2.6
 pexpect==4.8.0
-Pillow==9.2.0
-protobuf==4.21.6
 Pillow==10.2.0
 protobuf==4.21.6
 pudb==2022.1.2
