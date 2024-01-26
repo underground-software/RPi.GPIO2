@@ -9,7 +9,7 @@ Cython==0.29.32
 dl==0.1.0
 docutils==0.19
 eventlet==0.33.1
-gevent==21.12.0
+gevent==23.9.0
 gpiod==1.5.3
 greenlet==1.1.2
 HTMLParser==0.0.2
