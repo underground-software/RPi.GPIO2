@@ -4,7 +4,7 @@ brotli==1.0.9
 brotlicffi==1.0.9.2
 compiler==0.2.0
 ConfigParser==5.3.0
-cryptography==39.0.1
+cryptography==41.0.6
 Cython==0.29.32
 dl==0.1.0
 docutils==0.19
