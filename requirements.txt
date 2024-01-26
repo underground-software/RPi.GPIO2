@@ -36,7 +36,7 @@ simplejson==3.17.6
 Sphinx==5.1.1
 testsuite==0.1.2
 toml==0.10.2
-tornado==6.2
+tornado==6.3.3
 Twisted==23.10.0
 unicodedata2==14.0.0
 urllib3_secure_extra==0.1.0
