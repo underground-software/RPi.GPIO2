@@ -41,5 +41,5 @@ Twisted==23.10.0
 unicodedata2==14.0.0
 urllib3_secure_extra==0.1.0
 xmlrpclib==1.0.1
-zipp==3.8.1
+zipp==3.19.1
 zope==5.8.6
