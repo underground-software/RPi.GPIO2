@@ -37,7 +37,7 @@ Sphinx==5.1.1
 testsuite==0.1.2
 toml==0.10.2
 tornado==6.4.2
-Twisted==23.10.0
+Twisted==24.7.0
 unicodedata2==14.0.0
 urllib3_secure_extra==0.1.0
 xmlrpclib==1.0.1
